@@ -5,9 +5,9 @@
   "installCommand": "npm install",
   "framework": "vite",
   "env": {
-    "VITE_BASE_URL": {
-      "description": "URL pública do frontend em produção",
-      "value": "https://seu-dominio.vercel.app"
+    "VITE_BACKEND_URL": {
+      "description": "URL do backend API em produção (Render)",
+      "value": "https://autoshorts-backend-v2.onrender.com"
     }
   },
   "headers": [

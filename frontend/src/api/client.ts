@@ -7,9 +7,9 @@ const getPublicBaseUrl = () => {
 
 // Get backend API URL
 const getBackendApiUrl = () => {
-  // In production, if backend is on a different domain, configure it here
-  // For now, we use relative paths which work with Vercel proxy
-  return '/api';
+  // In production, use the Render backend URL
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://autoshorts-backend-v2.onrender.com';
+  return backendUrl + '/api';
 };
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {

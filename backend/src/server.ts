@@ -167,7 +167,9 @@ async function bootstrap() {
     'http://localhost:3000',
     'http://localhost:3001',
     'https://localhost:3000',
-    env.PUBLIC_BASE_URL || 'http://localhost:3000'
+    env.PUBLIC_BASE_URL || 'http://localhost:3000',
+    'https://autoshorts-ai.vercel.app', // Vercel frontend
+    'https://*.vercel.app' // Allow any Vercel domain for flexibility
   ].filter(Boolean);
 
   await fastify.register(cors, { 
