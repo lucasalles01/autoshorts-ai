@@ -131,7 +131,7 @@ async function ensureDemoUser() {
     }
     return user;
   } catch (error) {
-    fastify.log.error('Database initialization error:', error);
+    fastify.log.error({ err: error }, 'Database initialization error');
     // Return a fallback user object if database fails
     return {
       id: 'demo-fallback',

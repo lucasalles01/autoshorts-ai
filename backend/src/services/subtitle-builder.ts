@@ -14,6 +14,7 @@ interface CaptionConfiguration {
   duration?: number;
   maxLineLength?: number;
   wordsPerLine?: number;
+  uppercase?: boolean;
 }
 
 export interface SubtitleWord {
