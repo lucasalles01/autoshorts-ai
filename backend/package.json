@@ -19,6 +19,7 @@
     "@fastify/static": "^6.10.0",
     "@prisma/client": "^5.4.2",
     "bcryptjs": "^2.4.3",
+    "dotenv": "^16.3.1",
     "fastify": "^4.21.0",
     "prisma": "^5.4.2",
     "tsx": "^4.6.2",
