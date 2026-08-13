@@ -76,6 +76,7 @@ export class SubtitleBuilder {
     const primary = this.toAssColor(config.primaryColor);
     const highlight = this.toAssColor(config.secondaryColor);
     const outline = config.outlineColor ? this.toAssColor(config.outlineColor) : "&H00000000";
+    const secondary = config.secondaryColor ? this.toAssColor(config.secondaryColor) : primary;
     const marginV = Math.max(60, Math.round(1920 * (1 - (config.positionY || 50) / 100)));
 
     const header = [
