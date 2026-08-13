@@ -147,8 +147,8 @@ export async function processVideoPipeline(jobData: {
         provider: existing.provider,
         language: existing.language,
         fullText: existing.fullText,
-        segments: JSON.parse(existing.segments || '[]'),
-        words: JSON.parse(existing.words || '[]')
+        segments: JSON.parse(String(existing.segments || '[]')),
+        words: JSON.parse(String(existing.words || '[]'))
       };
       await setProgress(jobId, 40, 'Transcrição reaproveitada');
     } else if (transcriptionService.isEnabled() && sourceVideo.hasAudio) {
@@ -204,7 +204,7 @@ export async function processVideoPipeline(jobData: {
     // ---------- 3. Renderização real de cada corte ----------
     const framing = smartFramingEngine.calculateFraming(sourceVideo.width, sourceVideo.height);
     const isHorizontal = sourceVideo.width / sourceVideo.height > 9 / 16;
-    const captionConfig = captionEngine.getDefaultConfiguration(CaptionStyle.VIRAL);
+    const captionConfig = captionEngine.getDefaultConfiguration(String(CaptionStyle.VIRAL));
     const createdClips = [];
 
     for (let index = 0; index < unique.length; index++) {

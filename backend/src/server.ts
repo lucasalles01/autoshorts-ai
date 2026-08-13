@@ -173,7 +173,7 @@ async function bootstrap() {
       // Allow same origin
       if (origin === env.PUBLIC_BASE_URL) return callback(null, true);
       
-      callback(new Error('Not allowed by CORS'));
+      callback(new Error('Not allowed by CORS'), false);
     },
     credentials: true
   });
@@ -197,7 +197,7 @@ async function bootstrap() {
   fastify.setErrorHandler((error, _request, reply) => {
     fastify.log.error(error);
     const status = (error as any).statusCode && (error as any).statusCode >= 400 ? (error as any).statusCode : 500;
-    return reply.status(status).send({ error: error.message || 'Erro interno do servidor' });
+    return reply.status(status).send({ error: (error as Error).message || 'Erro interno do servidor' });
   });
 
   // ---------------------------------------------------------------- Health

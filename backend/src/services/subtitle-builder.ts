@@ -6,15 +6,14 @@ interface CaptionConfiguration {
   fontSize: number;
   primaryColor: string;
   secondaryColor: string;
+  outlineColor?: string;
   position: string;
-  positionY?: string;
   animation: string;
   animationStyle?: string;
   highlightedWords: string[];
   duration?: number;
   maxLineLength?: number;
   wordsPerLine?: number;
-  uppercase?: boolean;
 }
 
 export interface SubtitleWord {
@@ -77,7 +76,7 @@ export class SubtitleBuilder {
     const highlight = this.toAssColor(config.secondaryColor);
     const outline = config.outlineColor ? this.toAssColor(config.outlineColor) : "&H00000000";
     const secondary = config.secondaryColor ? this.toAssColor(config.secondaryColor) : primary;
-    const marginV = Math.max(60, Math.round(1920 * (1 - (config.positionY || 50) / 100)));
+    const marginV = Math.max(60, Math.round(1920 * 0.25));
 
     const header = [
       '[Script Info]',

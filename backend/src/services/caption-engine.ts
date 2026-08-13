@@ -23,6 +23,7 @@ interface CaptionConfiguration {
   duration?: number;
   maxLineLength?: number;
   wordsPerLine?: number;
+  uppercase?: boolean;
 }
 
 export class CaptionEngine {
@@ -35,20 +36,8 @@ export class CaptionEngine {
           primaryColor: '#FFFFFF',
           secondaryColor: '#FACC15', // Neon Yellow
           outlineColor: '#000000',
-          positionY: 75, // 75% da altura
-          animationStyle: 'WORD_HIGHLIGHT',
-          uppercase: true
-        };
-      case CaptionStyle.MODERN:
-        return {
-          fontFamily: 'Inter',
-          fontSize: 48,
-          primaryColor: '#FFFFFF',
-          secondaryColor: '#06B6D4', // Neon Cyan
-          outlineColor: '#000000',
-          positionY: 78,
-          animationStyle: 'POP_UP',
-          uppercase: false
+          position: 'CENTER_BOTTOM',
+          animationStyle: 'WORD_HIGHLIGHT'
         };
       case CaptionStyle.MINIMAL:
         return {
@@ -57,9 +46,8 @@ export class CaptionEngine {
           primaryColor: '#F3F4F6',
           secondaryColor: '#10B981', // Emerald
           outlineColor: '#1F2937',
-          positionY: 82,
-          animationStyle: 'FADE_IN',
-          uppercase: false
+          position: 'CENTER_BOTTOM',
+          animationStyle: 'FADE_IN'
         };
       case CaptionStyle.PROFESSIONAL:
         return {
@@ -68,9 +56,8 @@ export class CaptionEngine {
           primaryColor: '#FFFFFF',
           secondaryColor: '#8B5CF6', // Purple
           outlineColor: '#000000',
-          positionY: 80,
-          animationStyle: 'CLEAN_SLIDE',
-          uppercase: false
+          position: 'CENTER_BOTTOM',
+          animationStyle: 'CLEAN_SLIDE'
         };
       case CaptionStyle.BOLD:
         return {
@@ -79,9 +66,8 @@ export class CaptionEngine {
           primaryColor: '#FFFFFF',
           secondaryColor: '#FF0000', // Red
           outlineColor: '#000000',
-          positionY: 75,
-          animationStyle: 'WORD_HIGHLIGHT',
-          uppercase: true
+          position: 'CENTER_BOTTOM',
+          animationStyle: 'WORD_HIGHLIGHT'
         };
       case CaptionStyle.ELEGANT:
         return {
@@ -90,9 +76,18 @@ export class CaptionEngine {
           primaryColor: '#FFFFFF',
           secondaryColor: '#FFD700', // Gold
           outlineColor: '#000000',
-          positionY: 78,
-          animationStyle: 'FADE_IN',
-          uppercase: false
+          position: 'CENTER_BOTTOM',
+          animationStyle: 'FADE_IN'
+        };
+      case CaptionStyle.NEON:
+        return {
+          fontFamily: 'Outfit',
+          fontSize: 50,
+          primaryColor: '#FFFFFF',
+          secondaryColor: '#06B6D4', // Neon Cyan
+          outlineColor: '#000000',
+          position: 'CENTER_BOTTOM',
+          animationStyle: 'POP_UP'
         };
       default:
         return {
@@ -101,9 +96,8 @@ export class CaptionEngine {
           primaryColor: '#FFFFFF',
           secondaryColor: '#8B5CF6', // Purple
           outlineColor: '#000000',
-          positionY: 80,
-          animationStyle: 'CLEAN_SLIDE',
-          uppercase: false
+          position: 'CENTER_BOTTOM',
+          animationStyle: 'CLEAN_SLIDE'
         };
     }
   }
