@@ -1,0 +1,319 @@
+// SQLite não suporta enum, Json nem @db.Text.
+// Campos "enum" viram String (valores validados pelos enums TypeScript em @autoshorts/shared)
+// Campos "Json" viram String contendo JSON serializado (ver src/database/serializers.ts)
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// 1. User Entity
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  name         String?
+  passwordHash String
+  timezone     String   @default("America/Sao_Paulo")
+  role         String   @default("USER")
+  credits      Int      @default(100)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  projects       Project[]
+  socialAccounts SocialAccount[]
+  usageRecords   UsageRecord[]
+  aiInsights     AIInsight[]
+  notifications  Notification[]
+  jobs           Job[]
+
+  @@map("users")
+}
+
+// 2. Project Entity
+model Project {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  status      String   @default("ACTIVE")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  sourceVideos SourceVideo[]
+  clips        Clip[]
+  jobs         Job[]
+
+  @@index([userId])
+  @@map("projects")
+}
+
+// 3. SourceVideo Entity
+model SourceVideo {
+  id         String   @id @default(uuid())
+  projectId  String
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  filename   String
+  duration   Float    @default(0.0)
+  size       BigInt   @default(0)
+  resolution String   @default("1920x1080")
+  width      Int      @default(1920)
+  height     Int      @default(1080)
+  fps        Float    @default(30.0)
+  codec      String   @default("h264")
+  hasAudio   Boolean  @default(true)
+  mimeType   String   @default("video/mp4")
+  storageKey String
+  status     String   @default("UPLOADING")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  transcripts Transcript[]
+  clips       Clip[]
+  jobs        Job[]
+
+  @@index([projectId])
+  @@map("source_videos")
+}
+
+// 4. Transcript Entity
+model Transcript {
+  id            String      @id @default(uuid())
+  sourceVideoId String
+  sourceVideo   SourceVideo @relation(fields: [sourceVideoId], references: [id], onDelete: Cascade)
+  language      String      @default("pt-BR")
+  provider      String      @default("NONE")
+  fullText      String
+  segments      String      @default("[]") // JSON: TranscriptSegment[]
+  words         String?     // JSON: WordSegment[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([sourceVideoId])
+  @@map("transcripts")
+}
+
+// 5. Clip Entity
+model Clip {
+  id                  String      @id @default(uuid())
+  projectId           String
+  project             Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  sourceVideoId       String
+  sourceVideo         SourceVideo @relation(fields: [sourceVideoId], references: [id], onDelete: Cascade)
+  startTime           Float
+  endTime             Float
+  duration            Float
+  score               Float       @default(0.0)
+  hookScore           Float       @default(0.0)
+  contextScore        Float       @default(0.0)
+  coherenceScore      Float       @default(0.0)
+  emotionScore        Float       @default(0.0)
+  retentionScore      Float       @default(0.0)
+  shareabilityScore   Float       @default(0.0)
+  commentabilityScore Float       @default(0.0)
+  durationScore       Float       @default(0.0)
+  framingData         String      @default("{}") // JSON: FramingData
+  videoUrl            String?
+  storageKey          String?
+  thumbnailUrl        String?
+  thumbnailKey        String?
+  fileSize            BigInt      @default(0)
+  renderError         String?
+  status              String      @default("CANDIDATE")
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+
+  captions       Caption[]
+  metadatas      Metadata[]
+  scheduledPosts ScheduledPost[]
+  jobs           Job[]
+
+  @@index([projectId])
+  @@index([sourceVideoId])
+  @@index([status])
+  @@map("clips")
+}
+
+// 6. Caption Entity
+model Caption {
+  id               String   @id @default(uuid())
+  clipId           String
+  clip             Clip     @relation(fields: [clipId], references: [id], onDelete: Cascade)
+  style            String   @default("VIRAL")
+  font             String   @default("Outfit")
+  fontSize         Int      @default(48)
+  primaryColor     String   @default("#FFFFFF")
+  secondaryColor   String   @default("#FACC15")
+  position         String   @default("CENTER_BOTTOM")
+  animation        String   @default("WORD_HIGHLIGHT")
+  highlightedWords String   @default("[]") // JSON: string[]
+  configuration    String   @default("{}") // JSON: CaptionConfiguration
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([clipId])
+  @@map("captions")
+}
+
+// 7. Metadata Entity
+model Metadata {
+  id          String   @id @default(uuid())
+  clipId      String
+  clip        Clip     @relation(fields: [clipId], references: [id], onDelete: Cascade)
+  platform    String
+  title       String
+  description String
+  hashtags    String   @default("[]") // JSON: string[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([clipId, platform])
+  @@map("metadatas")
+}
+
+// 8. SocialAccount Entity
+model SocialAccount {
+  id                    String    @id @default(uuid())
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  platform              String
+  externalAccountId     String
+  username              String
+  accessTokenEncrypted  String
+  refreshTokenEncrypted String?
+  tokenExpiresAt        DateTime?
+  scopes                String    @default("[]") // JSON: string[]
+  status                String    @default("CONNECTED")
+  isMock                Boolean   @default(false)
+  lastSyncAt            DateTime?
+  platformMetadata      String?   // JSON
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  scheduledPosts ScheduledPost[]
+
+  @@unique([userId, platform, externalAccountId])
+  @@map("social_accounts")
+}
+
+// 9. ScheduledPost Entity
+model ScheduledPost {
+  id              String    @id @default(uuid())
+  clipId          String
+  clip            Clip      @relation(fields: [clipId], references: [id], onDelete: Cascade)
+  socialAccountId String
+  socialAccount   SocialAccount @relation(fields: [socialAccountId], references: [id], onDelete: Cascade)
+  scheduledAt     DateTime
+  timezone        String    @default("America/Sao_Paulo")
+  status          String    @default("DRAFT")
+  idempotencyKey  String    @unique
+  attempts        Int       @default(0)
+  maxAttempts     Int       @default(3)
+  lastError       String?
+  publishedAt     DateTime?
+  externalPostId  String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  analytics Analytics[]
+
+  @@index([clipId])
+  @@index([socialAccountId])
+  @@index([scheduledAt, status])
+  @@map("scheduled_posts")
+}
+
+// 10. Analytics Entity
+model Analytics {
+  id              String        @id @default(uuid())
+  scheduledPostId String
+  scheduledPost   ScheduledPost @relation(fields: [scheduledPostId], references: [id], onDelete: Cascade)
+  platform        String
+  snapshotWindow  String
+  views           Int           @default(0)
+  likes           Int           @default(0)
+  comments        Int           @default(0)
+  shares          Int           @default(0)
+  retentionRate   Float         @default(0.0)
+  engagementRate  Float         @default(0.0)
+  collectedAt     DateTime      @default(now())
+
+  @@index([scheduledPostId, snapshotWindow])
+  @@map("analytics")
+}
+
+// 11. AIInsight Entity
+model AIInsight {
+  id             String   @id @default(uuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type           String
+  message        String
+  contextualData String?  // JSON
+  createdAt      DateTime @default(now())
+
+  @@index([userId])
+  @@map("ai_insights")
+}
+
+// 12. UsageRecord Entity
+model UsageRecord {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  quantity  Float
+  unit      String
+  metadata  String?  // JSON
+  createdAt DateTime @default(now())
+
+  @@index([userId, type])
+  @@map("usage_records")
+}
+
+// Infrastructure Entity: Job
+model Job {
+  id            String       @id @default(uuid())
+  type          String
+  status        String       @default("QUEUED")
+  userId        String
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projectId     String?
+  project       Project?     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  sourceVideoId String?
+  sourceVideo   SourceVideo? @relation(fields: [sourceVideoId], references: [id], onDelete: Cascade)
+  clipId        String?
+  clip          Clip?        @relation(fields: [clipId], references: [id], onDelete: Cascade)
+  progress      Int          @default(0)
+  stage         String?
+  attempts      Int          @default(0)
+  maxAttempts   Int          @default(3)
+  error         String?
+  startedAt     DateTime?
+  completedAt   DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@index([userId, status])
+  @@index([type, status])
+  @@map("jobs")
+}
+
+// Infrastructure Entity: Notification
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId, read])
+  @@map("notifications")
+}

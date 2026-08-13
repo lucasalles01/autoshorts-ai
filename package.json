@@ -1,0 +1,15 @@
+{
+  "name": "autoshorts-ai",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "setup": "npm run build:shared && npm install --prefix backend && npm run db:push --prefix backend",
+    "build:shared": "npm install --prefix shared && npm run build --prefix shared",
+    "dev:backend": "npm run dev --prefix backend",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "dev": "npm run setup && concurrently \"npm run dev:backend\" \"npm run dev:frontend\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
