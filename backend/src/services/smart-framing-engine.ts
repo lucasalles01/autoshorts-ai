@@ -3,7 +3,9 @@ enum FramingMode {
   AUTO = "AUTO",
   CENTER = "CENTER",
   FACE = "FACE",
-  MOTION = "MOTION"
+  MOTION = "MOTION",
+  FACE_TRACKING = "FACE_TRACKING",
+  CENTER_CROP = "CENTER_CROP"
 }
 
 interface FramingData {
@@ -14,6 +16,10 @@ interface FramingData {
   width: number;
   height: number;
   trackingEnabled: boolean;
+  targetWidth?: number;
+  targetHeight?: number;
+  offsetX?: number;
+  offsetY?: number;
 }
 
 export class SmartFramingEngine {
@@ -56,19 +62,23 @@ export class SmartFramingEngine {
     const clampedX = this.clamp(rawXCenter - halfCrop, 0, originalWidth - cropWidthInOriginal);
 
     return {
-      mode,
-      xCenter: rawXCenter / originalWidth,
-      cropWidth: targetCropWidth,
-      cropHeight: targetCropHeight,
-      clampedX: Math.round(clampedX),
-      zoomLevel: 1.0,
-      hasFaceDetected
+      mode: String(mode),
+      centerX: rawXCenter,
+      centerY: originalHeight / 2,
+      scale: 1.0,
+      width: targetCropWidth,
+      height: targetCropHeight,
+      trackingEnabled: hasFaceDetected,
+      targetWidth: targetCropWidth,
+      targetHeight: targetCropHeight,
+      offsetX: Math.round(clampedX),
+      offsetY: 0
     };
   }
 
   public getFFmpegCropFilter(framing: FramingData, originalWidth: number, originalHeight: number): string {
     const cropWidthInOriginal = Math.round(originalHeight * (9 / 16));
-    const cropX = framing.clampedX;
+    const cropX = framing.offsetX || 0;
     
     // FFmpeg crop filter: crop=out_w:out_h:x:y,scale=1080:1920
     return `crop=${cropWidthInOriginal}:${originalHeight}:${cropX}:0,scale=1080:1920`;

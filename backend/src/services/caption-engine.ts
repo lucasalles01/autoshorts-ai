@@ -17,6 +17,9 @@ interface CaptionConfiguration {
   position: string;
   animation: string;
   highlightedWords: string[];
+  duration?: number;
+  maxLineLength?: number;
+  wordsPerLine?: number;
 }
 
 export class CaptionEngine {

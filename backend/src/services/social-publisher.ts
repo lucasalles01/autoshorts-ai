@@ -16,6 +16,7 @@ enum SocialPlatform {
 enum ScheduledPostStatus {
   DRAFT = "DRAFT",
   SCHEDULED = "SCHEDULED",
+  PUBLISHING = "PUBLISHING",
   PUBLISHED = "PUBLISHED",
   FAILED = "FAILED"
 }

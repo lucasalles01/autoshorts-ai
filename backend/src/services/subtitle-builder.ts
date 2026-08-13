@@ -8,6 +8,9 @@ interface CaptionConfiguration {
   position: string;
   animation: string;
   highlightedWords: string[];
+  duration?: number;
+  maxLineLength?: number;
+  wordsPerLine?: number;
 }
 
 export interface SubtitleWord {
@@ -81,7 +84,7 @@ export class SubtitleBuilder {
       '',
       '[V4+ Styles]',
       'Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding',
-      `Style: Viral,${font},${config.fontSize * 2},${primary},${primary},${outline},&H80000000,-1,0,0,0,100,100,0,0,1,6,2,2,80,80,${marginV},1`,
+      `Style: Viral,${font},${String(config.fontSize * 2)},${primary},${primary},${outline},&H80000000,-1,0,0,0,100,100,0,0,1,6,2,2,80,80,${marginV},1`,
       '',
       '[Events]',
       'Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text'
