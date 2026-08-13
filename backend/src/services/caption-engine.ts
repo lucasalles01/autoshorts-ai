@@ -3,7 +3,9 @@ enum CaptionStyle {
   VIRAL = "VIRAL",
   PROFESSIONAL = "PROFESSIONAL",
   MINIMAL = "MINIMAL",
-  NEON = "NEON"
+  NEON = "NEON",
+  BOLD = "BOLD",
+  ELEGANT = "ELEGANT"
 }
 
 interface CaptionConfiguration {

@@ -68,7 +68,8 @@ enum ClipStatus {
   SELECTED = "SELECTED",
   RENDERING = "RENDERING",
   COMPLETED = "COMPLETED",
-  FAILED = "FAILED"
+  FAILED = "FAILED",
+  APPROVED = "APPROVED"
 }
 
 enum ScheduledPostStatus {

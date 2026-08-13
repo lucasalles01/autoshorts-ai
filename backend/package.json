@@ -2,10 +2,11 @@
   "name": "@autoshorts/backend",
   "version": "1.0.0",
   "description": "AutoShorts AI Backend API",
+  "type": "module",
   "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "prisma generate && tsc || true",
+    "build": "prisma generate && tsc",
     "start": "node dist/server.js",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
