@@ -5,10 +5,7 @@
   "installCommand": "npm install",
   "framework": "vite",
   "env": {
-    "VITE_BACKEND_URL": {
-      "description": "URL do backend API em produção (Render)",
-      "value": "https://autoshorts-backend-v2.onrender.com"
-    }
+    "VITE_BACKEND_URL": "https://autoshorts-backend-v2.onrender.com"
   },
   "headers": [
     {
