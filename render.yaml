@@ -1,8 +1,9 @@
 services:
   - type: web
-    name: autoshorts-backend
+    name: autosharts-backend
     env: node
     plan: free
+    rootDir: backend
     buildCommand: npm install && npm run build
     startCommand: node dist/server.js
     envVars:

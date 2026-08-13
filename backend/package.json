@@ -5,7 +5,7 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc",
+    "build": "prisma generate && tsc",
     "start": "node dist/server.js",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
@@ -20,12 +20,12 @@
     "@prisma/client": "^5.4.2",
     "bcrypt": "^5.1.1",
     "fastify": "^4.21.0",
+    "prisma": "^5.4.2",
     "tsx": "^4.6.2"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
     "@types/node": "^20.3.1",
-    "prisma": "^5.4.2",
     "typescript": "^5.1.6"
   }
 }
