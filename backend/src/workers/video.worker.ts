@@ -16,6 +16,7 @@ import { storageService } from '../storage/storage.service.js';
 enum JobStatus {
   PENDING = "PENDING",
   QUEUED = "QUEUED",
+  PROCESSING = "PROCESSING",
   RUNNING = "RUNNING",
   COMPLETED = "COMPLETED",
   FAILED = "FAILED"
@@ -27,7 +28,8 @@ enum ClipStatus {
   RENDERING = "RENDERING",
   COMPLETED = "COMPLETED",
   FAILED = "FAILED",
-  APPROVED = "APPROVED"
+  APPROVED = "APPROVED",
+  REJECTED = "REJECTED"
 }
 
 enum CaptionStyle {
@@ -36,7 +38,8 @@ enum CaptionStyle {
   MINIMAL = "MINIMAL",
   NEON = "NEON",
   BOLD = "BOLD",
-  ELEGANT = "ELEGANT"
+  ELEGANT = "ELEGANT",
+  MODERN = "MODERN"
 }
 
 enum SocialPlatform {

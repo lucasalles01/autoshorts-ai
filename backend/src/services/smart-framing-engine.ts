@@ -20,6 +20,7 @@ interface FramingData {
   targetHeight?: number;
   offsetX?: number;
   offsetY?: number;
+  clampedX?: number;
 }
 
 export class SmartFramingEngine {

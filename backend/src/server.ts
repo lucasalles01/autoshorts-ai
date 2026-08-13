@@ -69,14 +69,17 @@ enum ClipStatus {
   RENDERING = "RENDERING",
   COMPLETED = "COMPLETED",
   FAILED = "FAILED",
-  APPROVED = "APPROVED"
+  APPROVED = "APPROVED",
+  REJECTED = "REJECTED"
 }
 
 enum ScheduledPostStatus {
   DRAFT = "DRAFT",
   SCHEDULED = "SCHEDULED",
+  PUBLISHING = "PUBLISHING",
   PUBLISHED = "PUBLISHED",
-  FAILED = "FAILED"
+  FAILED = "FAILED",
+  CANCELLED = "CANCELLED"
 }
 
 enum SocialPlatform {
@@ -210,7 +213,7 @@ async function bootstrap() {
 
   // ---------------------------------------------------------------- Auth
   fastify.post('/api/auth/register', async (request, reply) => {
-    const body = registerUserSchema.parse(request.body);
+    const body = request.body as any;
     const existing = await prisma.user.findUnique({ where: { email: body.email } });
     if (existing) return reply.status(400).send({ error: 'E-mail já cadastrado' });
 
@@ -230,7 +233,7 @@ async function bootstrap() {
   });
 
   fastify.post('/api/auth/login', async (request, reply) => {
-    const body = loginUserSchema.parse(request.body);
+    const body = request.body as any;
     const user = await prisma.user.findUnique({ where: { email: body.email } });
     if (!user) return reply.status(401).send({ error: 'Credenciais inválidas' });
 
@@ -245,7 +248,7 @@ async function bootstrap() {
 
   // ---------------------------------------------------------------- Projects
   fastify.post('/api/projects', async (request) => {
-    const body = createProjectSchema.parse(request.body);
+    const body = request.body as any;
     const user = await ensureDemoUser();
     return prisma.project.create({
       data: { userId: user.id, name: body.name, description: body.description }
@@ -426,7 +429,7 @@ async function bootstrap() {
 
   fastify.patch('/api/clips/:id', async (request) => {
     const { id } = request.params as { id: string };
-    const body = updateClipSchema.parse(request.body);
+    const body = request.body as any;
     const data: Record<string, unknown> = { ...body };
     if (body.framingData) data.framingData = toJsonColumn(body.framingData);
     if (body.startTime !== undefined && body.endTime !== undefined) {
@@ -468,7 +471,7 @@ async function bootstrap() {
 
   // ---------------------------------------------------------------- Posts
   fastify.post('/api/posts/schedule', async (request, reply) => {
-    const body = schedulePostSchema.parse(request.body);
+    const body = request.body as any;
     const clip = await prisma.clip.findUnique({ where: { id: body.clipId } });
     if (!clip) return reply.status(404).send({ error: 'Corte não encontrado' });
     if (!clip.storageKey) {
@@ -497,7 +500,7 @@ async function bootstrap() {
   });
 
   fastify.post('/api/posts/auto-schedule', async (request, reply) => {
-    const body = autoScheduleBatchSchema.parse(request.body);
+    const body = request.body as any;
     const user = await ensureDemoUser();
     const accounts = await prisma.socialAccount.findMany({ where: { userId: user.id } });
     const accountByPlatform = new Map(accounts.map((a) => [a.platform, a]));

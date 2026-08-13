@@ -11,11 +11,13 @@ enum CaptionStyle {
 interface CaptionConfiguration {
   style: string;
   font: string;
+  fontFamily: string;
   fontSize: number;
   primaryColor: string;
   secondaryColor: string;
   position: string;
   animation: string;
+  animationStyle?: string;
   highlightedWords: string[];
   duration?: number;
   maxLineLength?: number;

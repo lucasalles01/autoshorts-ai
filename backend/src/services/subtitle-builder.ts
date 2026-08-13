@@ -2,15 +2,19 @@
 interface CaptionConfiguration {
   style: string;
   font: string;
+  fontFamily: string;
   fontSize: number;
   primaryColor: string;
   secondaryColor: string;
   position: string;
+  positionY?: string;
   animation: string;
+  animationStyle?: string;
   highlightedWords: string[];
   duration?: number;
   maxLineLength?: number;
   wordsPerLine?: number;
+  uppercase?: boolean;
 }
 
 export interface SubtitleWord {
