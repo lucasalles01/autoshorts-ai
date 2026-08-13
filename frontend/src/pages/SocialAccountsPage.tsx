@@ -56,7 +56,7 @@ export const SocialAccountsPage: React.FC = () => {
           if (platform === 'TIKTOK') {
             // Enviar código para o backend
             api.handleTikTokCallback(code, state)
-              .then((result) => {
+              .then((result: any) => {
                 popup?.close();
                 setShowAddModal(false);
                 setNewAccount({ platform: 'TIKTOK', username: '', password: '', accessToken: '', googleEmail: '' });
@@ -112,7 +112,7 @@ export const SocialAccountsPage: React.FC = () => {
           if (platform === 'YOUTUBE') {
             // Enviar código para o backend
             api.handleYouTubeCallback(code, state)
-              .then((result) => {
+              .then((result: any) => {
                 popup?.close();
                 setShowAddModal(false);
                 setNewAccount({ platform: 'YOUTUBE', username: '', password: '', accessToken: '', googleEmail: '' });
@@ -168,7 +168,7 @@ export const SocialAccountsPage: React.FC = () => {
           if (platform === 'INSTAGRAM') {
             // Enviar código para o backend
             api.handleInstagramCallback(code, state)
-              .then((result) => {
+              .then((result: any) => {
                 popup?.close();
                 setShowAddModal(false);
                 setNewAccount({ platform: 'INSTAGRAM', username: '', password: '', accessToken: '', googleEmail: '' });
