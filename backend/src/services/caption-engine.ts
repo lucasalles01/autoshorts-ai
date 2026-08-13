@@ -9,17 +9,17 @@ enum CaptionStyle {
 }
 
 interface CaptionConfiguration {
-  style: string;
-  font: string;
-  fontFamily: string;
-  fontSize: number;
-  primaryColor: string;
-  secondaryColor: string;
+  style?: string;
+  font?: string;
+  fontFamily?: string;
+  fontSize?: number;
+  primaryColor?: string;
+  secondaryColor?: string;
   outlineColor?: string;
-  position: string;
-  animation: string;
+  position?: string;
+  animation?: string;
   animationStyle?: string;
-  highlightedWords: string[];
+  highlightedWords?: string[];
   duration?: number;
   maxLineLength?: number;
   wordsPerLine?: number;

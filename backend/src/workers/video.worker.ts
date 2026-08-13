@@ -204,7 +204,7 @@ export async function processVideoPipeline(jobData: {
     // ---------- 3. Renderização real de cada corte ----------
     const framing = smartFramingEngine.calculateFraming(sourceVideo.width, sourceVideo.height);
     const isHorizontal = sourceVideo.width / sourceVideo.height > 9 / 16;
-    const captionConfig = captionEngine.getDefaultConfiguration(String(CaptionStyle.VIRAL));
+    const captionConfig = captionEngine.getDefaultConfiguration(CaptionStyle.VIRAL as any);
     const createdClips = [];
 
     for (let index = 0; index < unique.length; index++) {

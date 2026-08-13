@@ -1,16 +1,16 @@
 // Local type definition
 interface CaptionConfiguration {
-  style: string;
-  font: string;
-  fontFamily: string;
-  fontSize: number;
-  primaryColor: string;
-  secondaryColor: string;
+  style?: string;
+  font?: string;
+  fontFamily?: string;
+  fontSize?: number;
+  primaryColor?: string;
+  secondaryColor?: string;
   outlineColor?: string;
-  position: string;
-  animation: string;
+  position?: string;
+  animation?: string;
   animationStyle?: string;
-  highlightedWords: string[];
+  highlightedWords?: string[];
   duration?: number;
   maxLineLength?: number;
   wordsPerLine?: number;
@@ -71,9 +71,9 @@ export class SubtitleBuilder {
 
     if (usable.length === 0) return null;
 
-    const font = this.safeFont(config.fontFamily);
-    const primary = this.toAssColor(config.primaryColor);
-    const highlight = this.toAssColor(config.secondaryColor);
+    const font = this.safeFont(config.fontFamily || 'Outfit');
+    const primary = this.toAssColor(config.primaryColor || '#FFFFFF');
+    const highlight = this.toAssColor(config.secondaryColor || '#FACC15');
     const outline = config.outlineColor ? this.toAssColor(config.outlineColor) : "&H00000000";
     const secondary = config.secondaryColor ? this.toAssColor(config.secondaryColor) : primary;
     const marginV = Math.max(60, Math.round(1920 * 0.25));

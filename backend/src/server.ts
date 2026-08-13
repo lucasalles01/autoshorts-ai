@@ -117,18 +117,29 @@ const MAX_UPLOAD_BYTES = 2 * 1024 * 1024 * 1024; // 2 GB
 const ALLOWED_EXTENSIONS = ['.mp4', '.mov', '.mkv', '.avi', '.webm', '.m4v'];
 
 async function ensureDemoUser() {
-  let user = await prisma.user.findFirst();
-  if (!user) {
-    user = await prisma.user.create({
-      data: {
-        email: 'demo@autoshorts.ai',
-        name: 'Usuário Pro',
-        passwordHash: await bcrypt.hash('demo123', 10),
-        credits: 1000
-      }
-    });
+  try {
+    let user = await prisma.user.findFirst();
+    if (!user) {
+      user = await prisma.user.create({
+        data: {
+          email: 'demo@autoshorts.ai',
+          name: 'Usuário Pro',
+          passwordHash: await bcrypt.hash('demo123', 10),
+          credits: 1000
+        }
+      });
+    }
+    return user;
+  } catch (error) {
+    fastify.log.error('Database initialization error:', error);
+    // Return a fallback user object if database fails
+    return {
+      id: 'demo-fallback',
+      email: 'demo@autoshorts.ai',
+      name: 'Usuário Pro',
+      credits: 1000
+    } as any;
   }
-  return user;
 }
 
 async function startProcessingJob(projectId: string, sourceVideoId: string, userId: string, maxClips?: number, minClipDuration?: number, maxClipDuration?: number) {
