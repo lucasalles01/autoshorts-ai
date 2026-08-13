@@ -1,4 +1,20 @@
-import { FramingMode, FramingData } from '@autoshorts/shared';
+// Local type definitions
+enum FramingMode {
+  AUTO = "AUTO",
+  CENTER = "CENTER",
+  FACE = "FACE",
+  MOTION = "MOTION"
+}
+
+interface FramingData {
+  mode: string;
+  centerX: number;
+  centerY: number;
+  scale: number;
+  width: number;
+  height: number;
+  trackingEnabled: boolean;
+}
 
 export class SmartFramingEngine {
   /**

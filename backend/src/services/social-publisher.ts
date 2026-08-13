@@ -1,11 +1,24 @@
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
-import { SocialPlatform, ScheduledPostStatus } from '@autoshorts/shared';
 import { env } from '../config/env.js';
 import { prisma } from '../database/client.js';
 import { fromJsonColumn } from '../database/serializers.js';
 import { storageService } from '../storage/storage.service.js';
+
+// Local enums
+enum SocialPlatform {
+  TIKTOK = "TIKTOK",
+  YOUTUBE = "YOUTUBE",
+  INSTAGRAM = "INSTAGRAM"
+}
+
+enum ScheduledPostStatus {
+  DRAFT = "DRAFT",
+  SCHEDULED = "SCHEDULED",
+  PUBLISHED = "PUBLISHED",
+  FAILED = "FAILED"
+}
 
 export interface PublishPayload {
   clipId: string;

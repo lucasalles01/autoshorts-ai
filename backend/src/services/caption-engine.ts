@@ -1,4 +1,21 @@
-import { CaptionStyle, CaptionConfiguration } from '@autoshorts/shared';
+// Local type definitions
+enum CaptionStyle {
+  VIRAL = "VIRAL",
+  PROFESSIONAL = "PROFESSIONAL",
+  MINIMAL = "MINIMAL",
+  NEON = "NEON"
+}
+
+interface CaptionConfiguration {
+  style: string;
+  font: string;
+  fontSize: number;
+  primaryColor: string;
+  secondaryColor: string;
+  position: string;
+  animation: string;
+  highlightedWords: string[];
+}
 
 export class CaptionEngine {
   public getDefaultConfiguration(style: CaptionStyle): CaptionConfiguration {

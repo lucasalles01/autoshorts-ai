@@ -1,4 +1,14 @@
-import { CaptionConfiguration } from '@autoshorts/shared';
+// Local type definition
+interface CaptionConfiguration {
+  style: string;
+  font: string;
+  fontSize: number;
+  primaryColor: string;
+  secondaryColor: string;
+  position: string;
+  animation: string;
+  highlightedWords: string[];
+}
 
 export interface SubtitleWord {
   word: string;

@@ -11,7 +11,35 @@ import { ffmpegService } from '../services/ffmpeg.service.js';
 import { transcriptionService, TranscriptionResult } from '../services/transcription.service.js';
 import { subtitleBuilder } from '../services/subtitle-builder.js';
 import { storageService } from '../storage/storage.service.js';
-import { JobStatus, ClipStatus, CaptionStyle, SocialPlatform } from '@autoshorts/shared';
+
+// Local enums
+enum JobStatus {
+  QUEUED = "QUEUED",
+  RUNNING = "RUNNING",
+  COMPLETED = "COMPLETED",
+  FAILED = "FAILED"
+}
+
+enum ClipStatus {
+  CANDIDATE = "CANDIDATE",
+  SELECTED = "SELECTED",
+  RENDERING = "RENDERING",
+  COMPLETED = "COMPLETED",
+  FAILED = "FAILED"
+}
+
+enum CaptionStyle {
+  VIRAL = "VIRAL",
+  PROFESSIONAL = "PROFESSIONAL",
+  MINIMAL = "MINIMAL",
+  NEON = "NEON"
+}
+
+enum SocialPlatform {
+  TIKTOK = "TIKTOK",
+  YOUTUBE = "YOUTUBE",
+  INSTAGRAM = "INSTAGRAM"
+}
 
 const STOPWORDS = new Set([
   'para','com','uma','que','dos','das','por','como','não','você','vocês','isso','esse','essa',

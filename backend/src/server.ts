@@ -6,6 +6,7 @@ import fastifyStatic from '@fastify/static';
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
 import { env } from './config/env.js';
 import { prisma } from './database/client.js';
 import {
@@ -21,14 +22,67 @@ import { ffmpegService } from './services/ffmpeg.service.js';
 import { transcriptionService } from './services/transcription.service.js';
 import { socialPublisherService } from './services/social-publisher.js';
 import { startScheduler } from './scheduler.js';
-import {
-  registerUserSchema,
-  loginUserSchema,
-  createProjectSchema,
-  updateClipSchema,
-  schedulePostSchema,
-  autoScheduleBatchSchema
-} from '@autoshorts/shared';
+
+// Local schemas (removed @autoshorts/shared dependency)
+const registerUserSchema = {
+  email: "string",
+  password: "string",
+  name: "string",
+  timezone: "string"
+};
+
+const loginUserSchema = {
+  email: "string",
+  password: "string"
+};
+
+const createProjectSchema = {
+  name: "string",
+  description: "string"
+};
+
+const updateClipSchema = {
+  startTime: "number",
+  endTime: "number",
+  score: "number",
+  framingData: "object"
+};
+
+const schedulePostSchema = {
+  clipId: "string",
+  socialAccountId: "string",
+  scheduledAt: "string",
+  timezone: "string"
+};
+
+const autoScheduleBatchSchema = {
+  clipIds: "array",
+  postsPerDay: "number",
+  preferredTimes: "array",
+  targetPlatforms: "array"
+};
+
+// Enums
+enum ClipStatus {
+  CANDIDATE = "CANDIDATE",
+  SELECTED = "SELECTED",
+  RENDERING = "RENDERING",
+  COMPLETED = "COMPLETED",
+  FAILED = "FAILED"
+}
+
+enum ScheduledPostStatus {
+  DRAFT = "DRAFT",
+  SCHEDULED = "SCHEDULED",
+  PUBLISHED = "PUBLISHED",
+  FAILED = "FAILED"
+}
+
+enum SocialPlatform {
+  TIKTOK = "TIKTOK",
+  YOUTUBE = "YOUTUBE",
+  INSTAGRAM = "INSTAGRAM"
+}
 
 // PKCE Utilities for TikTok OAuth2
 function generateCodeVerifier(): string {
@@ -52,8 +106,6 @@ function generateCodeChallenge(verifier: string): string {
 
 // Store code_verifiers temporarily (in production, use Redis)
 const codeVerifiers = new Map<string, { verifier: string; platform: string; expiresAt: number }>();
-import bcrypt from 'bcryptjs';
-import { ClipStatus, ScheduledPostStatus, SocialPlatform } from '@autoshorts/shared';
 
 const fastify = Fastify({ logger: { level: 'info' } });
 

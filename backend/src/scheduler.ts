@@ -1,6 +1,13 @@
 import { prisma } from './database/client.js';
 import { socialPublisherService } from './services/social-publisher.js';
-import { ScheduledPostStatus } from '@autoshorts/shared';
+
+// Local enum
+enum ScheduledPostStatus {
+  DRAFT = "DRAFT",
+  SCHEDULED = "SCHEDULED",
+  PUBLISHED = "PUBLISHED",
+  FAILED = "FAILED"
+}
 
 const TICK_MS = 30_000;
 
