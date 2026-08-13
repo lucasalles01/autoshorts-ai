@@ -1,9 +1,8 @@
-// SQLite não suporta enum, Json nem @db.Text.
-// Campos "enum" viram String (valores validados pelos enums TypeScript em @autoshorts/shared)
-// Campos "Json" viram String contendo JSON serializado (ver src/database/serializers.ts)
+// PostgreSQL Schema for Production (Supabase)
+// Este schema usa provider PostgreSQL para produção
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -88,8 +87,8 @@ model Transcript {
   language      String      @default("pt-BR")
   provider      String      @default("NONE")
   fullText      String
-  segments      String      @default("[]") // JSON: TranscriptSegment[]
-  words         String?     // JSON: WordSegment[]
+  segments      Json        @default("[]") // JSON: TranscriptSegment[]
+  words         Json?       // JSON: WordSegment[]
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 
@@ -116,7 +115,7 @@ model Clip {
   shareabilityScore   Float       @default(0.0)
   commentabilityScore Float       @default(0.0)
   durationScore       Float       @default(0.0)
-  framingData         String      @default("{}") // JSON: FramingData
+  framingData         Json        @default("{}") // JSON: FramingData
   videoUrl            String?
   storageKey          String?
   thumbnailUrl        String?
@@ -150,8 +149,8 @@ model Caption {
   secondaryColor   String   @default("#FACC15")
   position         String   @default("CENTER_BOTTOM")
   animation        String   @default("WORD_HIGHLIGHT")
-  highlightedWords String   @default("[]") // JSON: string[]
-  configuration    String   @default("{}") // JSON: CaptionConfiguration
+  highlightedWords Json     @default("[]") // JSON: string[]
+  configuration    Json     @default("{}") // JSON: CaptionConfiguration
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
@@ -167,7 +166,7 @@ model Metadata {
   platform    String
   title       String
   description String
-  hashtags    String   @default("[]") // JSON: string[]
+  hashtags    Json     @default("[]") // JSON: string[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -186,11 +185,11 @@ model SocialAccount {
   accessTokenEncrypted  String
   refreshTokenEncrypted String?
   tokenExpiresAt        DateTime?
-  scopes                String    @default("[]") // JSON: string[]
+  scopes                Json      @default("[]") // JSON: string[]
   status                String    @default("CONNECTED")
   isMock                Boolean   @default(false)
   lastSyncAt            DateTime?
-  platformMetadata      String?   // JSON
+  platformMetadata      Json?     // JSON
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
 
@@ -253,7 +252,7 @@ model AIInsight {
   user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   type           String
   message        String
-  contextualData String?  // JSON
+  contextualData Json?    // JSON
   createdAt      DateTime @default(now())
 
   @@index([userId])
@@ -268,7 +267,7 @@ model UsageRecord {
   type      String
   quantity  Float
   unit      String
-  metadata  String?  // JSON
+  metadata  Json?    // JSON
   createdAt DateTime @default(now())
 
   @@index([userId, type])
