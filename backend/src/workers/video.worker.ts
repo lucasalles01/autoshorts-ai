@@ -249,7 +249,7 @@ export async function processVideoPipeline(jobData: {
           duration: candidate.duration,
           sourceWidth: sourceVideo.width,
           sourceHeight: sourceVideo.height,
-          cropX: isHorizontal ? framing.clampedX : undefined,
+          cropX: isHorizontal ? (framing.clampedX || framing.offsetX || 0) : undefined,
           hasAudio: sourceVideo.hasAudio,
           subtitlePath
         });
@@ -283,7 +283,7 @@ export async function processVideoPipeline(jobData: {
             durationScore: candidate.durationScore,
             framingData: toJsonColumn({
               ...framing,
-              appliedCropX: isHorizontal ? framing.clampedX : 0,
+              appliedCropX: isHorizontal ? (framing.clampedX || framing.offsetX || 0) : 0,
               sourceWidth: sourceVideo.width,
               sourceHeight: sourceVideo.height
             }),
@@ -301,13 +301,13 @@ export async function processVideoPipeline(jobData: {
         await prisma.caption.create({
           data: {
             clipId: clip.id,
-            style: CaptionStyle.VIRAL,
+            style: String(CaptionStyle.VIRAL),
             font: captionConfig.fontFamily,
             fontSize: captionConfig.fontSize,
             primaryColor: captionConfig.primaryColor,
             secondaryColor: captionConfig.secondaryColor,
             position: 'CENTER_BOTTOM',
-            animation: subtitlePath ? captionConfig.animationStyle : 'NONE',
+            animation: subtitlePath ? String(captionConfig.animationStyle || 'WORD_HIGHLIGHT') : 'NONE',
             highlightedWords: toJsonColumn(
               clipText ? captionEngine.extractHighlightedWords(clipText) : []
             ),
@@ -328,7 +328,7 @@ export async function processVideoPipeline(jobData: {
           await prisma.metadata.create({
             data: {
               clipId: clip.id,
-              platform,
+              platform: String(platform),
               title,
               description,
               hashtags: toJsonColumn(buildHashtags(clipText || title, platform))

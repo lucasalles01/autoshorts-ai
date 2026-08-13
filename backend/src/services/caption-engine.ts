@@ -15,6 +15,7 @@ interface CaptionConfiguration {
   fontSize: number;
   primaryColor: string;
   secondaryColor: string;
+  outlineColor?: string;
   position: string;
   animation: string;
   animationStyle?: string;
@@ -61,6 +62,38 @@ export class CaptionEngine {
           uppercase: false
         };
       case CaptionStyle.PROFESSIONAL:
+        return {
+          fontFamily: 'Outfit',
+          fontSize: 44,
+          primaryColor: '#FFFFFF',
+          secondaryColor: '#8B5CF6', // Purple
+          outlineColor: '#000000',
+          positionY: 80,
+          animationStyle: 'CLEAN_SLIDE',
+          uppercase: false
+        };
+      case CaptionStyle.BOLD:
+        return {
+          fontFamily: 'Impact',
+          fontSize: 56,
+          primaryColor: '#FFFFFF',
+          secondaryColor: '#FF0000', // Red
+          outlineColor: '#000000',
+          positionY: 75,
+          animationStyle: 'WORD_HIGHLIGHT',
+          uppercase: true
+        };
+      case CaptionStyle.ELEGANT:
+        return {
+          fontFamily: 'Georgia',
+          fontSize: 42,
+          primaryColor: '#FFFFFF',
+          secondaryColor: '#FFD700', // Gold
+          outlineColor: '#000000',
+          positionY: 78,
+          animationStyle: 'FADE_IN',
+          uppercase: false
+        };
       default:
         return {
           fontFamily: 'Outfit',

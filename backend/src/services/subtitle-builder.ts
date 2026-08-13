@@ -75,8 +75,8 @@ export class SubtitleBuilder {
     const font = this.safeFont(config.fontFamily);
     const primary = this.toAssColor(config.primaryColor);
     const highlight = this.toAssColor(config.secondaryColor);
-    const outline = this.toAssColor(config.outlineColor);
-    const marginV = Math.max(60, Math.round(1920 * (1 - config.positionY / 100)));
+    const outline = config.outlineColor ? this.toAssColor(config.outlineColor) : "&H00000000";
+    const marginV = Math.max(60, Math.round(1920 * (1 - (config.positionY || 50) / 100)));
 
     const header = [
       '[Script Info]',
@@ -88,7 +88,7 @@ export class SubtitleBuilder {
       '',
       '[V4+ Styles]',
       'Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding',
-      `Style: Viral,${font},${String(config.fontSize * 2)},${primary},${primary},${outline},&H80000000,-1,0,0,0,100,100,0,0,1,6,2,2,80,80,${marginV},1`,
+      `Style: Viral,${font},${String(config.fontSize * 2)},${primary},${secondary},${outline},&H80000000,-1,0,0,0,100,100,0,0,1,6,2,2,80,80,${marginV},1`,
       '',
       '[Events]',
       'Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text'
