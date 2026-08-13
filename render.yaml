@@ -18,7 +18,7 @@ services:
       - key: ENCRYPTION_KEY
         generateValue: true
       - key: PUBLIC_BASE_URL
-        value: https://autosharts-backend.onrender.com
+        value: https://autoshorts-backend-v2.onrender.com
       - key: GOOGLE_CLIENT_ID
         sync: false
       - key: GOOGLE_CLIENT_SECRET
