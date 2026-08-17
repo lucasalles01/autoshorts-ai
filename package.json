@@ -7,7 +7,8 @@
     "build:shared": "npm install --prefix shared && npm run build --prefix shared",
     "dev:backend": "npm run dev --prefix backend",
     "dev:frontend": "npm run dev --prefix frontend",
-    "dev": "npm run setup && concurrently \"npm run dev:backend\" \"npm run dev:frontend\""
+    "dev": "npm run setup && concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "build": "cd frontend && npm install && npm run build"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
