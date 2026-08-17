@@ -1,12 +1,15 @@
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig(({ mode }) => {
+  // Load environment variables with fallback
+  const env = loadEnv(mode, process.cwd(), '');
+  
   // In production, use actual domain from environment
   // In development, use environment variable or default to /
   const base = mode === 'production' 
-    ? import.meta.env.VITE_BASE_URL || '/'
-    : import.meta.env.VITE_BASE_URL || '/';
+    ? env.VITE_BASE_URL || '/'
+    : env.VITE_BASE_URL || '/';
 
   return {
     plugins: [react()],
