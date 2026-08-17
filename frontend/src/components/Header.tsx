@@ -1,9 +1,11 @@
 import React from 'react';
 import { useAppStore } from '../store/useAppStore';
-import { Search, Bell, Sparkles, UserCheck, ShieldCheck } from 'lucide-react';
+import { useAuthStore } from '../store/useAuthStore';
+import { Search, Bell, Sparkles, UserCheck, ShieldCheck, LogOut } from 'lucide-react';
 
 export const Header: React.FC = () => {
   const { activeTab, setActiveTab } = useAppStore();
+  const { user, signOut } = useAuthStore();
 
   const titleMap: Record<string, { title: string; subtitle: string }> = {
     dashboard: { title: 'Visão Geral & Dashboard', subtitle: 'Acompanhe a produção automática e métricas em tempo real.' },
@@ -19,6 +21,11 @@ export const Header: React.FC = () => {
   };
 
   const currentInfo = titleMap[activeTab] || titleMap.dashboard;
+  const userName = user?.user_metadata?.name || user?.email?.split('@')[0] || 'Usuário';
+
+  const handleLogout = async () => {
+    await signOut();
+  };
 
   return (
     <header className="h-20 bg-cyber-dark/80 backdrop-blur-md border-b border-cyber-border px-8 flex items-center justify-between sticky top-0 z-20">
@@ -53,11 +60,17 @@ export const Header: React.FC = () => {
         {/* User Profile */}
         <div className="flex items-center gap-3 pl-3 border-l border-cyber-border">
           <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white font-bold text-sm shadow-md ring-2 ring-violet-500/40">
-            US
+            {userName.substring(0, 2).toUpperCase()}
           </div>
           <div className="hidden sm:block">
-            <h4 className="text-xs font-bold text-white">Usuário Pro</h4>
-            <p className="text-[10px] text-violet-400 font-semibold">Plano Enterprise</p>
+            <h4 className="text-xs font-bold text-white">{userName}</h4>
+            <button 
+              onClick={handleLogout}
+              className="text-[10px] text-violet-400 font-semibold hover:text-violet-300 flex items-center gap-1 transition-colors"
+            >
+              <LogOut className="w-3 h-3" />
+              Sair
+            </button>
           </div>
         </div>
       </div>

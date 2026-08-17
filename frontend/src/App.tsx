@@ -1,7 +1,11 @@
 import React, { Suspense, lazy, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useAppStore } from './store/useAppStore';
+import { useAuthStore } from './store/useAuthStore';
 import { Navigation } from './components/Navigation';
 import { Header } from './components/Header';
+import { ProtectedRoute } from './components/ProtectedRoute';
+import { supabase } from './lib/supabase';
 
 // Lazy load pages to isolate any runtime errors
 const Dashboard = lazy(() => import('./pages/Dashboard').then(m => ({ default: m.Dashboard })));
@@ -15,6 +19,7 @@ const LibraryPage = lazy(() => import('./pages/LibraryPage').then(m => ({ defaul
 const SocialAccountsPage = lazy(() => import('./pages/SocialAccountsPage').then(m => ({ default: m.SocialAccountsPage })));
 const SettingsPage = lazy(() => import('./pages/SettingsPage').then(m => ({ default: m.SettingsPage })));
 const OAuthCallback = lazy(() => import('./pages/OAuthCallback').then(m => ({ default: m.OAuthCallback })));
+const AuthPage = lazy(() => import('./pages/AuthPage').then(m => ({ default: m.AuthPage })));
 
 const PageLoader = () => (
   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh', flexDirection: 'column', gap: '1rem' }}>
@@ -26,20 +31,18 @@ const PageLoader = () => (
 
 export const App: React.FC = () => {
   const { activeTab, refreshAll, isLoading, error } = useAppStore();
+  const { user, loading: authLoading, initialize } = useAuthStore();
+
+  useEffect(() => {
+    initialize();
+  }, [initialize]);
 
   useEffect(() => {
     refreshAll();
   }, [refreshAll]);
 
-  // Check if we're on OAuth callback route
-  const isOAuthCallback = window.location.pathname === '/oauth/callback';
-  
-  if (isOAuthCallback) {
-    return (
-      <Suspense fallback={<PageLoader />}>
-        <OAuthCallback />
-      </Suspense>
-    );
+  if (authLoading) {
+    return <PageLoader />;
   }
 
   const renderActivePage = () => {
@@ -70,28 +73,37 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-cyber-dark text-gray-100 font-sans antialiased">
-      {/* Sidebar Navigation */}
-      <Navigation />
+    <Router>
+      <Routes>
+        <Route path="/auth" element={<AuthPage />} />
+        <Route path="/*" element={
+          <ProtectedRoute>
+            <div className="flex min-h-screen bg-cyber-dark text-gray-100 font-sans antialiased">
+              {/* Sidebar Navigation */}
+              <Navigation />
 
-      {/* Main Content Workspace Area */}
-      <div className="flex-1 flex flex-col min-w-0">
-        <Header />
-        {error && (
-          <div className="mx-8 mt-4 p-3 rounded-xl bg-red-950/50 border border-red-500/40 text-red-300 text-xs">
-            Backend offline ou erro de conexão: {error}. Verifique se o backend está rodando na porta 3001.
-          </div>
-        )}
-        <main className="flex-1 p-8 overflow-y-auto">
-          {isLoading && activeTab === 'dashboard' ? (
-            <PageLoader />
-          ) : (
-          <Suspense fallback={<PageLoader />}>
-            {renderActivePage()}
-          </Suspense>
-          )}
-        </main>
-      </div>
-    </div>
+              {/* Main Content Workspace Area */}
+              <div className="flex-1 flex flex-col min-w-0">
+                <Header />
+                {error && (
+                  <div className="mx-8 mt-4 p-3 rounded-xl bg-red-950/50 border border-red-500/40 text-red-300 text-xs">
+                    Backend offline ou erro de conexão: {error}. Verifique se o backend está rodando na porta 3001.
+                  </div>
+                )}
+                <main className="flex-1 p-8 overflow-y-auto">
+                  {isLoading && activeTab === 'dashboard' ? (
+                    <PageLoader />
+                  ) : (
+                    <Suspense fallback={<PageLoader />}>
+                      {renderActivePage()}
+                    </Suspense>
+                  )}
+                </main>
+              </div>
+            </div>
+          </ProtectedRoute>
+        } />
+      </Routes>
+    </Router>
   );
 };
