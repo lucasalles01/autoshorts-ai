@@ -5,7 +5,6 @@ import { useAuthStore } from './store/useAuthStore';
 import { Navigation } from './components/Navigation';
 import { Header } from './components/Header';
 import { ProtectedRoute } from './components/ProtectedRoute';
-import { supabase } from './lib/supabase';
 
 // Lazy load pages to isolate any runtime errors
 const Dashboard = lazy(() => import('./pages/Dashboard').then(m => ({ default: m.Dashboard })));
