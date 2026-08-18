@@ -1,11 +1,42 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://duaifeizjnonvzbxcpmib.supabase.co';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'fallback-key-for-development';
+// Validate URL format
+const isValidUrl = (url: string): boolean => {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+  } catch {
+    return false;
+  }
+};
 
-// Validate that we have valid credentials
-if (!supabaseUrl || !supabaseAnonKey || supabaseAnonKey === 'fallback-key-for-development') {
-  console.warn('Supabase credentials not properly configured. Auth features may not work.');
-}
+// Get Supabase URL with validation
+const getSupabaseUrl = (): string => {
+  const envUrl = import.meta.env.VITE_SUPABASE_URL;
+  
+  if (envUrl && isValidUrl(envUrl)) {
+    return envUrl;
+  }
+  
+  // Fallback to a valid dummy URL if env var is invalid
+  console.warn('VITE_SUPABASE_URL is invalid or missing. Using fallback URL. Auth features may not work.');
+  return 'https://dummy-project.supabase.co';
+};
+
+// Get Supabase Anon Key with validation
+const getSupabaseAnonKey = (): string => {
+  const envKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+  
+  if (envKey && envKey.length > 10) {
+    return envKey;
+  }
+  
+  // Fallback to a valid dummy key if env var is invalid
+  console.warn('VITE_SUPABASE_ANON_KEY is invalid or missing. Using fallback key. Auth features may not work.');
+  return 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJkdW1teS1wcm9qZWN0IiwicmVsIjoiYW5vbiIsInN1YiI6ImR1bW15In0.dummy-key-for-fallback';
+};
+
+const supabaseUrl = getSupabaseUrl();
+const supabaseAnonKey = getSupabaseAnonKey();
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
