@@ -23,7 +23,7 @@ const AuthPage = lazy(() => import('./pages/AuthPage').then(m => ({ default: m.A
 const PageLoader = () => (
   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh', flexDirection: 'column', gap: '1rem' }}>
     <div style={{ width: 40, height: 40, border: '3px solid #7c3aed', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-    <p style={{ color: '#94a3b8', fontSize: '0.875rem' }}>Carregando...</p>
+    <p style={{ color: '#94a3b8', fontSize: '0.875rem' }}>Carregando AutoShorts AI...</p>
     <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
   </div>
 );
@@ -33,11 +33,21 @@ export const App: React.FC = () => {
   const { user, loading: authLoading, initialize } = useAuthStore();
 
   useEffect(() => {
-    initialize();
+    try {
+      initialize();
+    } catch (err) {
+      console.error('Auth initialization failed:', err);
+      // Continue without auth if initialization fails
+    }
   }, [initialize]);
 
   useEffect(() => {
-    refreshAll();
+    try {
+      refreshAll();
+    } catch (err) {
+      console.error('Data refresh failed:', err);
+      // Continue without data if refresh fails
+    }
   }, [refreshAll]);
 
   if (authLoading) {
