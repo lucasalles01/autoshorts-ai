@@ -40,6 +40,46 @@ export class TranscriptionService {
     return this.isEnabled() ? 'OPENAI_WHISPER' : 'NONE';
   }
 
+  /**
+   * Generate placeholder transcription for demo purposes when OpenAI API is not available
+   * This allows the pipeline to continue without real transcriptions
+   */
+  private generatePlaceholderTranscription(duration: number): TranscriptionResult {
+    const segments: TranscriptSegmentResult[] = [];
+    const words: TranscriptWordResult[] = [];
+    const segmentDuration = 5; // 5 seconds per segment
+    
+    for (let i = 0; i < Math.ceil(duration / segmentDuration); i++) {
+      const start = i * segmentDuration;
+      const end = Math.min(start + segmentDuration, duration);
+      
+      segments.push({
+        id: i,
+        start,
+        end,
+        text: `Segmento de exemplo ${i + 1} - configure OPENAI_API_KEY para transcrição real`
+      });
+      
+      // Add some placeholder words
+      const placeholderWords = ['Este', 'é', 'um', 'texto', 'de', 'exemplo'];
+      placeholderWords.forEach((word, wordIndex) => {
+        words.push({
+          word,
+          start: start + (wordIndex * 0.5),
+          end: start + ((wordIndex + 1) * 0.5)
+        });
+      });
+    }
+
+    return {
+      provider: 'PLACEHOLDER',
+      language: env.TRANSCRIPTION_LANGUAGE || 'pt',
+      fullText: 'Transcrição de exemplo - configure OPENAI_API_KEY para obter transcrição real via Whisper API',
+      segments,
+      words
+    };
+  }
+
   private async transcribeChunk(
     audioPath: string,
     offsetSeconds: number
@@ -93,7 +133,11 @@ export class TranscriptionService {
     totalDuration: number,
     onProgress?: (percent: number) => void
   ): Promise<TranscriptionResult | null> {
-    if (!this.isEnabled()) return null;
+    if (!this.isEnabled()) {
+      // Return placeholder transcription for demo purposes
+      onProgress?.(100);
+      return this.generatePlaceholderTranscription(totalDuration);
+    }
 
     await fs.promises.mkdir(tmpDir, { recursive: true });
 

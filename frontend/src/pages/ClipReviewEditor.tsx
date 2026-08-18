@@ -15,37 +15,55 @@ import {
   Zap,
   UserCheck,
   Eye,
-  ArrowLeft
+  ArrowLeft,
+  X
 } from 'lucide-react';
 
 export const ClipReviewEditor: React.FC = () => {
-  const { selectedClip, clips, setSelectedClip, setActiveTab, updateClipCaption, addScheduledPost } = useAppStore();
+  const { selectedClip, clips, setSelectedClip, setActiveTab, updateClipCaption, addScheduledPost, approveClip, rejectClip } = useAppStore();
 
   const clip: ClipItem = selectedClip || clips[0];
 
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [activeEditorTab, setActiveEditorTab] = useState<'video' | 'captions' | 'metadata' | 'schedule'>('video');
 
-  const [startTime, setStartTime] = useState<number>(clip.duration > 0 ? 0 : 0);
-  const [endTime, setEndTime] = useState<number>(clip.duration);
+  const [startTime, setStartTime] = useState<number>(0);
+  const [endTime, setEndTime] = useState<number>(clip?.duration || 60);
   const [framingMode, setFramingMode] = useState<'FACE_TRACKING' | 'SUBJECT_TRACKING' | 'CENTER_CROP'>('FACE_TRACKING');
   const [silenceRemoval, setSilenceRemoval] = useState<string>('MEDIUM');
 
-  const [captionStyle, setCaptionStyle] = useState<'VIRAL' | 'MODERN' | 'MINIMAL' | 'PROFESSIONAL'>(clip.captionStyle || 'VIRAL');
-  const [captionText, setCaptionText] = useState<string>(clip.captionText);
+  const [captionStyle, setCaptionStyle] = useState<'VIRAL' | 'MODERN' | 'MINIMAL' | 'PROFESSIONAL'>(clip?.captionStyle || 'VIRAL');
+  const [captionText, setCaptionText] = useState<string>(clip?.captionText || clip?.quoteSnippet || '');
   const [primaryColor, setPrimaryColor] = useState<string>('#FFFFFF');
   const [highlightColor, setHighlightColor] = useState<string>('#FACC15');
 
-  const [tiktokTitle, setTiktokTitle] = useState<string>('ELE NÃO ESPERAVA ESSA RESPOSTA 😳');
-  const [tiktokDesc, setTiktokDesc] = useState<string>('Essa foi uma das partes mais surpreendentes da conversa! Assista até o final. #shorts #podcast #viral');
+  const [tiktokTitle, setTiktokTitle] = useState<string>(clip?.title || 'Título do vídeo');
+  const [tiktokDesc, setTiktokDesc] = useState<string>('Descrição do vídeo #shorts #viral');
 
-  const [igTitle, setIgTitle] = useState<string>('O maior segredo para viralizar seus vídeos curtos...');
-  const [igDesc, setIgDesc] = useState<string>('Você comete esse erro? Deixe nos comentários! 👇 #reels #cortes #ia');
+  const [igTitle, setIgTitle] = useState<string>(clip?.title || 'Título do vídeo');
+  const [igDesc, setIgDesc] = useState<string>('Descrição do vídeo #reels #ia');
 
-  const [ytTitle, setYTTitle] = useState<string>('ELE NÃO ESPERAVA ESSA RESPOSTA 😳 | CortesIA');
+  const [ytTitle, setYTTitle] = useState<string>(clip?.title || 'Título do vídeo');
 
   const [targetPlatforms, setTargetPlatforms] = useState<string[]>(['TIKTOK', 'INSTAGRAM', 'YOUTUBE']);
-  const [scheduledDate, setScheduledDate] = useState<string>('2026-08-13T12:00');
+  const [scheduledDate, setScheduledDate] = useState<string>(() => {
+    const now = new Date();
+    now.setHours(now.getHours() + 1);
+    return now.toISOString().slice(0, 16);
+  });
+
+  // Initialize with clip data when clip changes
+  React.useEffect(() => {
+    if (clip) {
+      setStartTime(0);
+      setEndTime(clip.duration);
+      setCaptionStyle(clip.captionStyle);
+      setCaptionText(clip.captionText || clip.quoteSnippet);
+      setTiktokTitle(clip.title);
+      setIgTitle(clip.title);
+      setYTTitle(clip.title);
+    }
+  }, [clip?.id, clip]);
 
   const handleSaveAndSchedule = () => {
     updateClipCaption(clip.id, captionText, captionStyle);
@@ -59,6 +77,32 @@ export const ClipReviewEditor: React.FC = () => {
     });
     setActiveTab('queue');
   };
+
+  const handleApprove = async () => {
+    await approveClip(clip.id);
+  };
+
+  const handleReject = async () => {
+    await rejectClip(clip.id);
+    setActiveTab('dashboard');
+  };
+
+  if (!clip) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center space-y-4">
+          <Scissors className="w-16 h-16 text-gray-400 mx-auto" />
+          <p className="text-gray-400">Nenhum corte selecionado</p>
+          <button
+            onClick={() => setActiveTab('dashboard')}
+            className="py-2 px-4 rounded-xl bg-violet-600 text-white font-semibold"
+          >
+            Voltar ao Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 pb-12">
@@ -77,11 +121,25 @@ export const ClipReviewEditor: React.FC = () => {
             Holistic Score: {clip.score}/100
           </span>
           <button
+            onClick={handleReject}
+            className="py-2.5 px-4 rounded-xl font-bold text-xs bg-red-600/90 text-white shadow-lg flex items-center gap-2 hover:bg-red-500"
+          >
+            <X className="w-4 h-4" />
+            <span>Rejeitar</span>
+          </button>
+          <button
+            onClick={handleApprove}
+            className="py-2.5 px-4 rounded-xl font-bold text-xs bg-emerald-600/90 text-white shadow-lg flex items-center gap-2 hover:bg-emerald-500"
+          >
+            <CheckCircle2 className="w-4 h-4" />
+            <span>Aprovar</span>
+          </button>
+          <button
             onClick={handleSaveAndSchedule}
             className="py-2.5 px-6 rounded-xl font-bold text-xs bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg flex items-center gap-2"
           >
             <CheckCircle2 className="w-4 h-4" />
-            <span>Aprovar & Agendar Publicação</span>
+            <span>Aprovar & Agendar</span>
           </button>
         </div>
       </div>
