@@ -138,7 +138,7 @@ export const ClipReviewEditor: React.FC = () => {
             onClick={handleSaveAndSchedule}
             className="py-2.5 px-6 rounded-xl font-bold text-xs bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg flex items-center gap-2"
           >
-            <CheckCircle2 className="w-4 h-4" />
+            <Calendar className="w-4 h-4" />
             <span>Aprovar & Agendar</span>
           </button>
         </div>
