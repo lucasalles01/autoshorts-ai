@@ -111,11 +111,19 @@ export const useAppStore = create<AppState>((set, get) => ({
   refreshAll: async () => {
     set({ isLoading: true, error: null });
     try {
+      // First check backend health
+      try {
+        await api.health();
+      } catch (healthErr) {
+        console.warn('Backend health check failed:', healthErr);
+        // Continue anyway, individual endpoints might work
+      }
+
       const [projects, clips, posts, analytics] = await Promise.all([
-        api.getProjects(),
-        api.getClips(),
-        api.getPosts(),
-        api.getAnalytics()
+        api.getProjects().catch(() => []),
+        api.getClips().catch(() => []),
+        api.getPosts().catch(() => []),
+        api.getAnalytics().catch(() => ({ kpis: {} }))
       ]);
 
       set({
