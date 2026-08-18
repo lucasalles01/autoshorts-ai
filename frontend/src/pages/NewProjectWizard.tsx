@@ -10,7 +10,9 @@ import {
   ArrowLeft,
   AlertCircle,
   Play,
-  Clock
+  Clock,
+  Link,
+  Youtube
 } from 'lucide-react';
 
 interface CandidateClip {
@@ -32,12 +34,14 @@ export const NewProjectWizard: React.FC = () => {
   const [projectName, setProjectName] = useState('Meu Novo Projeto');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedSample, setSelectedSample] = useState<string | null>(null);
+  const [youtubeUrl, setYoutubeUrl] = useState<string>('');
   const [isScanning, setIsScanning] = useState<boolean>(false);
   const [scanProgress, setScanProgress] = useState<number>(0);
   const [error, setError] = useState<string | null>(null);
   const [approvedClips, setApprovedClips] = useState<string[]>([]);
   const [candidateClips, setCandidateClips] = useState<CandidateClip[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadMethod, setUploadMethod] = useState<'file' | 'youtube' | 'sample'>('file');
   
   // Configurações avançadas
   const [maxClips, setMaxClips] = useState(5);
@@ -66,7 +70,7 @@ export const NewProjectWizard: React.FC = () => {
     try {
       const project = await api.createProject({
         name: projectName,
-        description: selectedFile?.name || selectedSample || 'Projeto AutoShorts'
+        description: selectedFile?.name || youtubeUrl || selectedSample || 'Projeto AutoShorts'
       });
       setCurrentProjectId(project.id);
 
@@ -74,6 +78,9 @@ export const NewProjectWizard: React.FC = () => {
 
       if (selectedFile) {
         const result = await api.uploadVideo(project.id, selectedFile);
+        jobId = result.jobId;
+      } else if (youtubeUrl) {
+        const result = await api.uploadYoutubeUrl(project.id, youtubeUrl);
         jobId = result.jobId;
       } else {
         const sample = sampleVideos.find((s) => s.name === selectedSample);
@@ -207,62 +214,124 @@ export const NewProjectWizard: React.FC = () => {
             />
           </div>
 
-          <div
-            onClick={() => fileInputRef.current?.click()}
-            className="p-8 rounded-2xl glass-panel border border-dashed border-violet-500/40 text-center space-y-4 hover:border-violet-500 transition-colors cursor-pointer"
-          >
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="video/mp4,video/quicktime,video/*"
-              className="hidden"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  setSelectedFile(file);
-                  setSelectedSample(null);
-                  setProjectName(file.name.replace(/\.[^.]+$/, ''));
-                }
-              }}
-            />
-            <div className="w-16 h-16 rounded-2xl bg-violet-600/20 border border-violet-500/30 text-violet-400 flex items-center justify-center mx-auto neon-glow-violet">
-              <Upload className="w-8 h-8" />
-            </div>
-            <div>
-              <h2 className="text-xl font-extrabold text-white">
-                {selectedFile ? selectedFile.name : 'Arraste seu Vídeo Bruto para Iniciar'}
-              </h2>
-              <p className="text-xs text-gray-400 mt-1">Suporta MP4, MOV ou AVI de até 500 MB</p>
-            </div>
-            <button type="button" className="py-2.5 px-6 rounded-xl font-bold text-xs bg-violet-600 hover:bg-violet-500 text-white shadow-md inline-block">
-              Selecionar Vídeo do Computador
+          {/* Upload Method Selection */}
+          <div className="flex gap-2 mb-4">
+            <button
+              onClick={() => setUploadMethod('file')}
+              className={`flex-1 py-3 px-4 rounded-xl font-bold text-xs transition-all ${
+                uploadMethod === 'file'
+                  ? 'bg-violet-600 text-white'
+                  : 'glass-panel text-gray-400 hover:text-white'
+              }`}
+            >
+              <Upload className="w-4 h-4 inline mr-2" />
+              Upload de Arquivo
+            </button>
+            <button
+              onClick={() => setUploadMethod('youtube')}
+              className={`flex-1 py-3 px-4 rounded-xl font-bold text-xs transition-all ${
+                uploadMethod === 'youtube'
+                  ? 'bg-violet-600 text-white'
+                  : 'glass-panel text-gray-400 hover:text-white'
+              }`}
+            >
+              <Youtube className="w-4 h-4 inline mr-2" />
+              Link do YouTube
+            </button>
+            <button
+              onClick={() => setUploadMethod('sample')}
+              className={`flex-1 py-3 px-4 rounded-xl font-bold text-xs transition-all ${
+                uploadMethod === 'sample'
+                  ? 'bg-violet-600 text-white'
+                  : 'glass-panel text-gray-400 hover:text-white'
+              }`}
+            >
+              <Sparkles className="w-4 h-4 inline mr-2" />
+              Vídeo de Exemplo
             </button>
           </div>
 
-          <div className="space-y-3">
-            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Ou escolha um vídeo de exemplo:</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {sampleVideos.map((s) => (
-                <div
-                  key={s.name}
-                  onClick={() => {
-                    setSelectedSample(s.name);
-                    setSelectedFile(null);
-                    setProjectName(s.name);
-                  }}
-                  className={`p-4 rounded-xl border glass-card cursor-pointer transition-all ${
-                    selectedSample === s.name ? 'border-violet-500 bg-violet-950/30' : 'border-cyber-border hover:border-gray-600'
-                  }`}
-                >
-                  <div className="flex items-center gap-3 mb-2">
-                    <FileVideo className="w-5 h-5 text-violet-400 shrink-0" />
-                    <h4 className="text-xs font-bold text-white line-clamp-2">{s.name}</h4>
-                  </div>
-                  <div className="text-[11px] text-gray-400 pt-2 border-t border-cyber-border/60">{s.label}</div>
-                </div>
-              ))}
+          {uploadMethod === 'file' && (
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              className="p-8 rounded-2xl glass-panel border border-dashed border-violet-500/40 text-center space-y-4 hover:border-violet-500 transition-colors cursor-pointer"
+            >
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="video/mp4,video/quicktime,video/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    setSelectedFile(file);
+                    setSelectedSample(null);
+                    setYoutubeUrl('');
+                    setProjectName(file.name.replace(/\.[^.]+$/, ''));
+                  }
+                }}
+              />
+              <div className="w-16 h-16 rounded-2xl bg-violet-600/20 border border-violet-500/30 text-violet-400 flex items-center justify-center mx-auto neon-glow-violet">
+                <Upload className="w-8 h-8" />
+              </div>
+              <div>
+                <h2 className="text-xl font-extrabold text-white">
+                  {selectedFile ? selectedFile.name : 'Arraste seu Vídeo Bruto para Iniciar'}
+                </h2>
+                <p className="text-xs text-gray-400 mt-1">Suporta MP4, MOV ou AVI de até 500 MB</p>
+              </div>
+              <button type="button" className="py-2.5 px-6 rounded-xl font-bold text-xs bg-violet-600 hover:bg-violet-500 text-white shadow-md inline-block">
+                Selecionar Vídeo do Computador
+              </button>
             </div>
-          </div>
+          )}
+
+          {uploadMethod === 'youtube' && (
+            <div className="p-6 rounded-2xl glass-panel border border-cyber-border space-y-4">
+              <label className="text-xs font-bold text-gray-300 block mb-2">Link do YouTube</label>
+              <div className="relative">
+                <Link className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input
+                  type="url"
+                  value={youtubeUrl}
+                  onChange={(e) => setYoutubeUrl(e.target.value)}
+                  className="w-full glass-input text-sm rounded-xl pl-10 pr-4 py-3 text-gray-200"
+                  placeholder="https://youtube.com/watch?v=..."
+                />
+              </div>
+              <p className="text-xs text-gray-400 mt-2">
+                Cole o link do vídeo do YouTube para processamento automático
+              </p>
+            </div>
+          )}
+
+          {uploadMethod === 'sample' && (
+            <div className="space-y-3">
+              <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Ou escolha um vídeo de exemplo:</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {sampleVideos.map((s) => (
+                  <div
+                    key={s.name}
+                    onClick={() => {
+                      setSelectedSample(s.name);
+                      setSelectedFile(null);
+                      setYoutubeUrl('');
+                      setProjectName(s.name);
+                    }}
+                    className={`p-4 rounded-xl border glass-card cursor-pointer transition-all ${
+                      selectedSample === s.name ? 'border-violet-500 bg-violet-950/30' : 'border-cyber-border hover:border-gray-600'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 mb-2">
+                      <FileVideo className="w-5 h-5 text-violet-400 shrink-0" />
+                      <h4 className="text-xs font-bold text-white line-clamp-2">{s.name}</h4>
+                    </div>
+                    <div className="text-[11px] text-gray-400 pt-2 border-t border-cyber-border/60">{s.label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Configurações Avançadas */}
           <div className="p-4 rounded-xl glass-panel border border-cyber-border space-y-4">
@@ -391,7 +460,7 @@ export const NewProjectWizard: React.FC = () => {
           <div className="flex justify-end pt-4">
             <button
               onClick={startProcessing}
-              disabled={!selectedFile && !selectedSample}
+              disabled={!selectedFile && !selectedSample && !youtubeUrl}
               className="py-3 px-8 rounded-xl font-bold text-sm bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 text-white shadow-lg flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <span>Avançar para Análise de IA</span>

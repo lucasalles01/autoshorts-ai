@@ -98,6 +98,13 @@ export const api = {
     });
   },
 
+  uploadYoutubeUrl: (projectId: string, youtubeUrl: string) => {
+    return request<{ sourceVideo: unknown; jobId: string }>(`/projects/${projectId}/youtube`, {
+      method: 'POST',
+      body: JSON.stringify({ youtubeUrl })
+    });
+  },
+
   startDemoProcessing: (projectId: string, data: { name: string; duration: number; maxClips?: number; minClipDuration?: number; maxClipDuration?: number }) =>
     request<{ jobId: string }>(`/projects/${projectId}/demo`, {
       method: 'POST',
