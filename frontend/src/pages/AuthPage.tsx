@@ -1,28 +1,43 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Mail, Lock, User, Loader2 } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
 import { supabase } from '../lib/supabase';
 
 export default function AuthPage() {
+  const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
-  const { signIn, signUp } = useAuthStore();
+  const { signIn, signUp, user } = useAuthStore();
+
+  // Redirect to dashboard if user is already logged in
+  useEffect(() => {
+    if (user) {
+      navigate('/');
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
     setLoading(true);
 
     try {
       if (isLogin) {
         await signIn(email, password);
+        setSuccess('Login realizado com sucesso! Redirecionando...');
+        setTimeout(() => navigate('/'), 1000);
       } else {
         await signUp(email, password, name);
+        setSuccess('Conta criada com sucesso! Redirecionando...');
+        setTimeout(() => navigate('/'), 1000);
       }
     } catch (err: any) {
       setError(err.message || 'Erro na autenticação');
@@ -62,6 +77,12 @@ export default function AuthPage() {
           {error && (
             <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-lg mb-6">
               {error}
+            </div>
+          )}
+
+          {success && (
+            <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-4 py-3 rounded-lg mb-6">
+              {success}
             </div>
           )}
 
