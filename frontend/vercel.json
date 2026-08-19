@@ -3,5 +3,10 @@
   "outputDirectory": "dist",
   "devCommand": "npm run dev",
   "installCommand": "npm install",
-  "framework": "vite"
+  "framework": "vite",
+  "env": {
+    "VITE_BACKEND_URL": "https://autoshorts-backend-v2.onrender.com",
+    "VITE_SUPABASE_URL": "https://rsmfccivskwwfbazqxdg.supabase.co",
+    "VITE_SUPABASE_ANON_KEY": "sb_publishable_iAewqK7cM3NhaXUblrytmw__XuUAwzv"
+  }
 }
