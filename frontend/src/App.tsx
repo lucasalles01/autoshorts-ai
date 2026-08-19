@@ -5,6 +5,7 @@ import { useAuthStore } from './store/useAuthStore';
 import { Navigation } from './components/Navigation';
 import { Header } from './components/Header';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import AuthPage from './pages/AuthPage';
 
 // Lazy load pages to isolate any runtime errors
 const Dashboard = lazy(() => import('./pages/Dashboard').then(m => ({ default: m.Dashboard })));
@@ -18,7 +19,6 @@ const LibraryPage = lazy(() => import('./pages/LibraryPage').then(m => ({ defaul
 const SocialAccountsPage = lazy(() => import('./pages/SocialAccountsPage').then(m => ({ default: m.SocialAccountsPage })));
 const SettingsPage = lazy(() => import('./pages/SettingsPage').then(m => ({ default: m.SettingsPage })));
 const OAuthCallback = lazy(() => import('./pages/OAuthCallback').then(m => ({ default: m.OAuthCallback })));
-const AuthPage = lazy(() => import('./pages/AuthPage').then(m => ({ default: m.AuthPage })));
 
 const PageLoader = () => (
   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh', flexDirection: 'column', gap: '1rem' }}>
@@ -84,11 +84,7 @@ export const App: React.FC = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/auth" element={
-          <Suspense fallback={<PageLoader />}>
-            <AuthPage />
-          </Suspense>
-        } />
+        <Route path="/auth" element={<AuthPage />} />
         <Route path="/*" element={
           <ProtectedRoute>
             <div className="flex min-h-screen bg-cyber-dark text-gray-100 font-sans antialiased">
