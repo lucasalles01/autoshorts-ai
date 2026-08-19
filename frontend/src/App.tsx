@@ -84,7 +84,11 @@ export const App: React.FC = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/auth" element={<AuthPage />} />
+        <Route path="/auth" element={
+          <Suspense fallback={<PageLoader />}>
+            <AuthPage />
+          </Suspense>
+        } />
         <Route path="/*" element={
           <ProtectedRoute>
             <div className="flex min-h-screen bg-cyber-dark text-gray-100 font-sans antialiased">
