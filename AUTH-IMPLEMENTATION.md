@@ -95,7 +95,7 @@ Após push, configure na Vercel:
 1. Settings → Environment Variables
 2. Adicione:
    ```
-   VITE_SUPABASE_URL = https://duaifeizjnonvzbxcpmib.supabase.co
+   VITE_SUPABASE_URL = https://rsmfccivskwwfbazqxdg.supabase.co
    VITE_SUPABASE_ANON_KEY = your-anon-key
    ```
 3. Redeploy para aplicar as variáveis

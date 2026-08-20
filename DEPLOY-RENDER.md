@@ -4,14 +4,14 @@
 
 - ✅ Repositório GitHub criado: https://github.com/lucasalles01/autoshorts-ai
 - ✅ Prisma schema atualizado para PostgreSQL
-- ✅ DATABASE_URL do Supabase: `postgresql://postgres.duaifeizjnonvzbxcpmib:Jamaicanos157%40@aws-0-us-west-2.pooler.supabase.com:6543/postgres`
-- ✅ Supabase URL: https://duaifeizjnonvzbxcpmib.supabase.co
+- ✅ DATABASE_URL do Supabase: `postgresql://postgres.rsmfccivskwwfbazqxdg:Jamaicanos157%40@aws-0-us-west-2.pooler.supabase.com:6543/postgres`
+- ✅ Supabase URL: https://rsmfccivskwwfbazqxdg.supabase.co
 
 ## 🚀 Passo 1: Rodar Migrations no Supabase
 
 ### Opção A: Via Supabase Dashboard (Recomendado)
 
-1. Acesse https://supabase.com/dashboard/project/duaifeizjnonvzbxcpmib
+1. Acesse https://supabase.com/dashboard/project/rsmfccivskwwfbazqxdg
 2. Vá em "SQL Editor"
 3. Clique em "New Query"
 4. Cole o schema Prisma (de `backend/prisma/schema.prisma`)
@@ -53,7 +53,7 @@ Start Command: node dist/server.js
 ```
 PORT=3001
 NODE_ENV=production
-DATABASE_URL=postgresql://postgres.duaifeizjnonvzbxcpmib:Jamaicanos157%40@aws-0-us-west-2.pooler.supabase.com:6543/postgres
+DATABASE_URL=postgresql://postgres.rsmfccivskwwfbazqxdg:Jamaicanos157%40@aws-0-us-west-2.pooler.supabase.com:6543/postgres
 JWT_SECRET=gerar-um-aleatorio-32-caracteres-minimo
 ENCRYPTION_KEY=gerar-um-aleatorio-32-hex-chars-minimo
 PUBLIC_BASE_URL=https://autosharts-backend.onrender.com

@@ -40,7 +40,7 @@ Se o render.yaml não for detectado, configure manualmente:
 ```
 PORT=3001
 NODE_ENV=production
-DATABASE_URL=postgresql://postgres.duaifeizjnonvzbxcpmib:Jamaicanos157%40@aws-0-us-west-2.pooler.supabase.com:6543/postgres
+DATABASE_URL=postgresql://postgres.rsmfccivskwwfbazqxdg:Jamaicanos157%40@aws-0-us-west-2.pooler.supabase.com:6543/postgres
 JWT_SECRET=gerar-um-aleatorio-32-caracteres
 ENCRYPTION_KEY=gerar-um-aleatorio-32-hex-chars
 PUBLIC_BASE_URL=https://autosharts-backend.onrender.com

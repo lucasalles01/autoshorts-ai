@@ -39,7 +39,7 @@ Se as variáveis da Vercel não funcionarem, podemos atualizar o código com as 
 
 ## ⚠️ Importante
 
-- A URL `duaifeizjnonvzbxcpmib.supabase.co` parece estar incorreta ou o projeto foi deletado
+- A URL `rsmfccivskwwfbazqxdg.supabase.co` parece estar incorreta ou o projeto foi deletado
 - Você precisa fornecer a URL correta do projeto ativo
 - A chave anon também deve ser atualizada
 

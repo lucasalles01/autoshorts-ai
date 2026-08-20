@@ -12,7 +12,7 @@ services:
       - key: NODE_ENV
         value: production
       - key: DATABASE_URL
-        value: postgresql://postgres:Jamaicanos157%40@db.duaifeizjnonvzbxcpmib.supabase.co:5432/postgres
+        value: postgresql://postgres:Jamaicanos157%40@db.rsmfccivskwwfbazqxdg.supabase.co:5432/postgres
       - key: JWT_SECRET
         generateValue: true
       - key: ENCRYPTION_KEY

@@ -5,7 +5,7 @@
 cd C:\Users\lukas\.gemini\antigravity\scratch\autoshorts-ai\backend
 
 # Configurar DATABASE_URL
-$env:DATABASE_URL = "postgresql://postgres.duaifeizjnonvzbxcpmib:Jamaicanos157%40@aws-0-us-west-2.pooler.supabase.com:6543/postgres"
+$env:DATABASE_URL = "postgresql://postgres.rsmfccivskwwfbazqxdg:Jamaicanos157%40@aws-0-us-west-2.pooler.supabase.com:6543/postgres"
 
 # Instalar dependências
 Write-Host "Instalando dependências..." -ForegroundColor Yellow

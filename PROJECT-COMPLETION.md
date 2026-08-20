@@ -70,7 +70,7 @@
 ### Frontend (Vercel)
 ```env
 VITE_BACKEND_URL=https://autoshorts-backend-v2.onrender.com ✅
-VITE_SUPABASE_URL=https://duaifeizjnonvzbxcpmib.supabase.co ✅
+VITE_SUPABASE_URL=https://rsmfccivskwwfbazqxdg.supabase.co ✅
 VITE_SUPABASE_ANON_KEY=configured ✅
 ```
 

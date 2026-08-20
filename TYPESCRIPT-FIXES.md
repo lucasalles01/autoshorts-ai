@@ -65,7 +65,7 @@ Já configuradas no render.yaml:
 ```
 PORT=3001
 NODE_ENV=production
-DATABASE_URL=postgresql://postgres.duaifeizjnonvzbxcpmib:Jamaicanos157%40@aws-0-us-west-2.pooler.supabase.com:6543/postgres
+DATABASE_URL=postgresql://postgres.rsmfccivskwwfbazqxdg:Jamaicanos157%40@aws-0-us-west-2.pooler.supabase.com:6543/postgres
 JWT_SECRET=gerado-automaticamente
 ENCRYPTION_KEY=gerado-automaticamente
 PUBLIC_BASE_URL=https://autosharts-backend.onrender.com
