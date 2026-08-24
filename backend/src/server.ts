@@ -23,6 +23,7 @@ import { transcriptionService } from './services/transcription.service.js';
 import { socialPublisherService } from './services/social-publisher.js';
 import { contentAIService } from './services/content-ai.service.js';
 import { jobQueue, startJobWorker } from './services/job-queue.service.js';
+import { thumbnailService } from './services/thumbnail.service.js';
 import { startScheduler } from './scheduler.js';
 
 // Local schemas (removed @autoshorts/shared dependency)
@@ -495,6 +496,76 @@ async function bootstrap() {
     } catch (error) {
       console.error('Error generating content suggestions:', error);
       return reply.status(500).send({ error: 'Erro ao gerar sugestões de conteúdo' });
+    }
+  });
+
+  // ---------------------------------------------------------------- Thumbnails
+  fastify.post('/api/thumbnails/generate', async (request, reply) => {
+    const body = request.body as { 
+      clipId?: string; 
+      timestamp?: number;
+      addText?: boolean;
+      text?: string;
+      textColor?: string;
+      fontSize?: number;
+    };
+    
+    try {
+      if (!body.clipId) {
+        return reply.status(400).send({ error: 'clipId é obrigatório' });
+      }
+
+      const clip = await prisma.clip.findUnique({ where: { id: body.clipId } });
+      if (!clip || !clip.storageKey) {
+        return reply.status(404).send({ error: 'Corte não encontrado ou sem arquivo' });
+      }
+
+      const videoPath = storageService.resolveKey(clip.storageKey);
+      const thumbnailPath = videoPath.replace(/\.(mp4|mov|avi)$/i, '_thumbnail.jpg');
+
+      await thumbnailService.generateThumbnail(videoPath, thumbnailPath, {
+        timestamp: body.timestamp,
+        addText: body.addText,
+        text: body.text,
+        textColor: body.textColor,
+        fontSize: body.fontSize
+      });
+
+      // Salvar thumbnail no storage
+      const thumbnailKey = clip.storageKey.replace(/\.(mp4|mov|avi)$/i, '_thumbnail.jpg');
+      
+      return reply.send({ 
+        success: true, 
+        thumbnailUrl: `/api/thumbnails/${clip.id}`,
+        thumbnailKey 
+      });
+    } catch (error) {
+      console.error('Error generating thumbnail:', error);
+      return reply.status(500).send({ error: 'Erro ao gerar thumbnail' });
+    }
+  });
+
+  fastify.get('/api/thumbnails/:clipId', async (request, reply) => {
+    const { clipId } = request.params as { clipId: string };
+    
+    try {
+      const clip = await prisma.clip.findUnique({ where: { id: clipId } });
+      if (!clip || !clip.storageKey) {
+        return reply.status(404).send({ error: 'Corte não encontrado' });
+      }
+
+      const thumbnailKey = clip.storageKey.replace(/\.(mp4|mov|avi)$/i, '_thumbnail.jpg');
+      const thumbnailPath = storageService.resolveKey(thumbnailKey);
+
+      if (!fs.existsSync(thumbnailPath)) {
+        return reply.status(404).send({ error: 'Thumbnail não encontrado' });
+      }
+
+      reply.header('Content-Type', 'image/jpeg');
+      return reply.send(fs.createReadStream(thumbnailPath));
+    } catch (error) {
+      console.error('Error serving thumbnail:', error);
+      return reply.status(500).send({ error: 'Erro ao servir thumbnail' });
     }
   });
 
