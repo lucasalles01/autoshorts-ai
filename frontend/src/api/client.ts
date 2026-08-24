@@ -192,6 +192,28 @@ export const api = {
     request<{ title: string; description: string; hashtags: string[] }>('/content/suggestions', {
       method: 'POST',
       body: JSON.stringify({ script, theme })
+    }),
+
+  generateThumbnail: (clipId: string, options?: {
+    timestamp?: number;
+    addText?: boolean;
+    text?: string;
+    textColor?: string;
+    fontSize?: number;
+  }) =>
+    request<{ success: boolean; thumbnailUrl: string; thumbnailKey: string }>('/thumbnails/generate', {
+      method: 'POST',
+      body: JSON.stringify({ clipId, ...options })
+    }),
+
+  publishToMultiplePlatforms: (clipId: string, platforms: string[], metadata?: {
+    title?: string;
+    description?: string;
+    hashtags?: string[];
+  }) =>
+    request<{ success: boolean; results: Array<{ platform: string; success: boolean; error?: string }> }>('/posts/multi-publish', {
+      method: 'POST',
+      body: JSON.stringify({ clipId, platforms, metadata })
     })
 };
 

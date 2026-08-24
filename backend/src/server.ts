@@ -717,6 +717,90 @@ async function bootstrap() {
     return presentScheduledPost(updatedPost);
   });
 
+  // Multi-platform publishing
+  fastify.post('/api/posts/multi-publish', async (request, reply) => {
+    const body = request.body as { 
+      clipId: string; 
+      platforms: string[]; 
+      metadata?: { 
+        title?: string; 
+        description?: string; 
+        hashtags?: string[] 
+      } 
+    };
+    
+    const { clipId, platforms, metadata } = body;
+    
+    try {
+      const clip = await prisma.clip.findUnique({ 
+        where: { id: clipId },
+        include: { metadatas: true, captions: true }
+      });
+      
+      if (!clip || !clip.storageKey) {
+        return reply.status(404).send({ error: 'Corte não encontrado ou sem arquivo' });
+      }
+
+      const user = await ensureDemoUser();
+      const accounts = await prisma.socialAccount.findMany({ 
+        where: { 
+          userId: user.id,
+          platform: { in: platforms }
+        }
+      });
+
+      if (accounts.length === 0) {
+        return reply.status(400).send({ error: 'Nenhuma conta conectada para as plataformas selecionadas' });
+      }
+
+      const results = [];
+      
+      for (const account of accounts) {
+        if (account.isMock) {
+          results.push({
+            platform: account.platform,
+            success: false,
+            error: 'Conta em modo mock. Conecte uma conta real.'
+          });
+          continue;
+        }
+
+        try {
+          const videoPath = storageService.resolveKey(clip.storageKey);
+          const clipMetadata = clip.metadatas?.[0];
+          
+          const payload = {
+            clipId: clip.id,
+            videoFilePath: videoPath,
+            externalAccountId: account.id,
+            title: metadata?.title || clipMetadata?.title || `Corte ${clip.id.substring(0, 6)}`,
+            description: metadata?.description || clipMetadata?.description || '',
+            hashtags: metadata?.hashtags || clipMetadata?.tags?.split(',') || []
+          };
+
+          const result = await socialPublisherService.publishToAccount(account.platform, account.accessToken, payload);
+          
+          results.push({
+            platform: account.platform,
+            success: result.success,
+            error: result.error
+          });
+        } catch (error) {
+          results.push({
+            platform: account.platform,
+            success: false,
+            error: error instanceof Error ? error.message : 'Erro desconhecido'
+          });
+        }
+      }
+
+      return reply.send({ success: true, results });
+    } catch (error) {
+      console.error('Erro ao publicar em múltiplas plataformas:', error);
+      return reply.status(500).send({ error: 'Erro ao publicar em múltiplas plataformas' });
+    }
+  });
+
   // ---------------------------------------------------------------- Social accounts
   
   // TikTok OAuth2 Authorization endpoint with PKCE
