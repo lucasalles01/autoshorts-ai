@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { useAppStore } from '../store/useAppStore';
 import { api, mapClipToStore, pollJob } from '../api/client';
+import { RenderProgress } from '../components/RenderProgress';
 import {
   Upload,
   Sparkles,
@@ -43,6 +44,15 @@ export const NewProjectWizard: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadMethod, setUploadMethod] = useState<'file' | 'youtube' | 'sample'>('file');
   
+  // Renderização progresso
+  const [renderStep, setRenderStep] = useState(0);
+  const [renderSteps] = useState([
+    'Gerando roteiro...',
+    'Sintetizando áudio...',
+    'Gerando legendas...',
+    'Finalizando vídeo...'
+  ]);
+  
   // Configurações avançadas
   const [maxClips, setMaxClips] = useState(5);
   const [minClipDuration, setMinClipDuration] = useState(20);
@@ -61,8 +71,50 @@ export const NewProjectWizard: React.FC = () => {
     { name: 'Entrevista com CEO — Inovação e Tecnologias Disruptivas', duration: 3510, label: '00:58:30' }
   ];
 
+  const isValidYoutubeUrl = (url: string): boolean => {
+    const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/;
+    return youtubeRegex.test(url);
+  };
+
   const startProcessing = async () => {
     setError(null);
+    
+    // Validações
+    if (!selectedFile && !youtubeUrl && !selectedSample) {
+      setError('⚠️ Selecione um arquivo, URL do YouTube ou vídeo de exemplo');
+      return;
+    }
+
+    if (youtubeUrl && !isValidYoutubeUrl(youtubeUrl)) {
+      setError('⚠️ URL do YouTube inválida. Verifique o formato.');
+      return;
+    }
+
+    if (selectedFile && selectedFile.size > 500 * 1024 * 1024) { // 500MB
+      setError('⚠️ Arquivo muito grande. Máximo permitido: 500MB');
+      return;
+    }
+
+    if (!projectName.trim()) {
+      setError('⚠️ Digite um nome para o projeto');
+      return;
+    }
+
+    if (maxClips < 1 || maxClips > 400) {
+      setError('⚠️ Número de cortes deve ser entre 1 e 400');
+      return;
+    }
+
+    if (minClipDuration < 10 || minClipDuration > 240) {
+      setError('⚠️ Duração mínima deve ser entre 10 e 240 segundos');
+      return;
+    }
+
+    if (maxClipDuration < minClipDuration) {
+      setError('⚠️ Duração máxima deve ser maior que a duração mínima');
+      return;
+    }
+
     setIsScanning(true);
     setScanProgress(5);
     setStep(2);
@@ -94,7 +146,7 @@ export const NewProjectWizard: React.FC = () => {
         jobId = result.jobId;
       }
 
-      await pollJob(jobId, setScanProgress);
+      await pollJob(jobId, setScanProgress, setRenderStep);
 
       const clips = await api.getClips(project.id);
       const mapped = clips.map(mapClipToStore);
@@ -136,12 +188,22 @@ export const NewProjectWizard: React.FC = () => {
 
   const handleFinish = async () => {
     if (approvedClips.length === 0) {
-      setError('Selecione pelo menos um corte');
+      setError('⚠️ Selecione pelo menos um corte para continuar');
       return;
     }
 
     if (targetPlatforms.length === 0) {
-      setError('Selecione pelo menos uma plataforma');
+      setError('⚠️ Selecione pelo menos uma plataforma de publicação');
+      return;
+    }
+
+    if (postsPerDay < 1 || postsPerDay > 10) {
+      setError('⚠️ Número de posts por dia deve ser entre 1 e 10');
+      return;
+    }
+
+    if (preferredTimes.length === 0) {
+      setError('⚠️ Selecione pelo menos um horário preferido');
       return;
     }
 
@@ -158,7 +220,8 @@ export const NewProjectWizard: React.FC = () => {
       await refreshAll();
       setActiveTab('calendar');
     } catch (err: any) {
-      setError(err.message || 'Erro ao agendar publicações');
+      console.error('Erro ao agendar publicações:', err);
+      setError(`❌ ${err.message || 'Erro ao agendar publicações. Tente novamente.'}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -471,23 +534,16 @@ export const NewProjectWizard: React.FC = () => {
       )}
 
       {step === 2 && (
-        <div className="p-12 rounded-2xl glass-panel border border-cyan-500/30 text-center space-y-8">
-          <div className="w-20 h-20 rounded-full bg-cyan-500/20 border border-cyan-500/40 text-cyan-400 flex items-center justify-center mx-auto neon-glow-cyan animate-pulse">
-            <Sparkles className="w-10 h-10 animate-spin" />
+        <div className="space-y-6">
+          <div className="text-center space-y-2">
+            <h2 className="text-2xl font-extrabold text-white">A IA está processando seu vídeo...</h2>
+            <p className="text-xs text-gray-400">Gerando cortes de alta qualidade automaticamente.</p>
           </div>
-          <div className="space-y-2 max-w-md mx-auto">
-            <h2 className="text-2xl font-extrabold text-white">A IA está escaneando seu vídeo...</h2>
-            <p className="text-xs text-gray-400">Transcrevendo, detectando ganchos e gerando cortes virais.</p>
-          </div>
-          <div className="max-w-md mx-auto space-y-2">
-            <div className="flex justify-between text-xs font-semibold">
-              <span className="text-cyan-400">Progresso</span>
-              <span className="text-white font-mono">{scanProgress}%</span>
-            </div>
-            <div className="w-full bg-gray-800 rounded-full h-3 overflow-hidden p-0.5 border border-cyber-border">
-              <div className="bg-gradient-to-r from-violet-500 via-cyan-400 to-emerald-400 h-full rounded-full transition-all duration-300" style={{ width: `${scanProgress}%` }} />
-            </div>
-          </div>
+          <RenderProgress
+            currentStep={renderStep}
+            totalSteps={renderSteps.length}
+            steps={renderSteps}
+          />
         </div>
       )}
 

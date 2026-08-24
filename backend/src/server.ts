@@ -21,6 +21,8 @@ import { processVideoPipeline, generateDemoSourceVideo } from './workers/video.w
 import { ffmpegService } from './services/ffmpeg.service.js';
 import { transcriptionService } from './services/transcription.service.js';
 import { socialPublisherService } from './services/social-publisher.js';
+import { contentAIService } from './services/content-ai.service.js';
+import { jobQueue, startJobWorker } from './services/job-queue.service.js';
 import { startScheduler } from './scheduler.js';
 
 // Local schemas (removed @autoshorts/shared dependency)
@@ -480,6 +482,20 @@ async function bootstrap() {
     reply.header('Content-Type', 'video/mp4');
     reply.header('Content-Disposition', `attachment; filename="${path.basename(clip.storageKey)}"`);
     return reply.send(fs.createReadStream(filePath));
+  });
+
+  // ---------------------------------------------------------------- Content AI
+  fastify.post('/api/content/suggestions', async (request, reply) => {
+    const body = request.body as { script?: string; theme?: string };
+    const { script = '', theme } = body;
+    
+    try {
+      const suggestions = await contentAIService.generateContentSuggestions(script, theme);
+      return reply.send(suggestions);
+    } catch (error) {
+      console.error('Error generating content suggestions:', error);
+      return reply.status(500).send({ error: 'Erro ao gerar sugestões de conteúdo' });
+    }
   });
 
   // ---------------------------------------------------------------- Posts
@@ -1323,6 +1339,7 @@ async function bootstrap() {
   await fastify.listen({ port: env.PORT, host: '0.0.0.0' });
 
   startScheduler();
+  startJobWorker(); // Iniciar worker de fila de jobs
 
   console.log(`\n  AutoShorts API   http://localhost:${env.PORT}`);
   console.log(`  FFmpeg           ${ffmpegOk ? 'OK' : 'INDISPONÍVEL — rode npm install no backend'}`);

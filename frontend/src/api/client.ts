@@ -186,7 +186,13 @@ export const api = {
     request<{
       kpis: Record<string, number>;
       insights: { id: string; type: string; message: string }[];
-    }>('/analytics')
+    }>('/analytics'),
+
+  generateContentSuggestions: (script: string, theme?: string) =>
+    request<{ title: string; description: string; hashtags: string[] }>('/content/suggestions', {
+      method: 'POST',
+      body: JSON.stringify({ script, theme })
+    })
 };
 
 export function mapClipToStore(clip: ApiClip) {
@@ -250,12 +256,30 @@ function formatDuration(seconds: number) {
   return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
-export async function pollJob(jobId: string, onProgress?: (progress: number) => void): Promise<ApiJob> {
+export async function pollJob(
+  jobId: string,
+  onProgress?: (progress: number) => void,
+  onStepChange?: (step: number) => void
+): Promise<ApiJob> {
   return new Promise((resolve, reject) => {
     const interval = setInterval(async () => {
       try {
         const job = await api.getJob(jobId);
         onProgress?.(job.progress);
+        
+        // Inferir etapa baseada no progresso
+        if (onStepChange) {
+          if (job.progress < 25) {
+            onStepChange(0); // Gerando roteiro
+          } else if (job.progress < 50) {
+            onStepChange(1); // Sintetizando áudio
+          } else if (job.progress < 75) {
+            onStepChange(2); // Gerando legendas
+          } else {
+            onStepChange(3); // Finalizando vídeo
+          }
+        }
+        
         if (job.status === 'COMPLETED') {
           clearInterval(interval);
           resolve(job);
