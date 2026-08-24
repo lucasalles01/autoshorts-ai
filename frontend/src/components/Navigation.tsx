@@ -13,6 +13,7 @@ import {
   Sparkles,
   Zap
 } from 'lucide-react';
+import { AutoShortsLogo } from './AutoShortsLogo';
 
 export const Navigation: React.FC = () => {
   const { activeTab, setActiveTab } = useAppStore();
@@ -34,12 +35,10 @@ export const Navigation: React.FC = () => {
       <div>
         {/* Brand Logo */}
         <div className="flex items-center gap-3 px-3 py-4 mb-6">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-violet-600 via-indigo-500 to-cyan-400 flex items-center justify-center neon-glow-violet">
-            <Sparkles className="w-6 h-6 text-white animate-pulse" />
-          </div>
+          <AutoShortsLogo size={40} />
           <div>
-            <h1 className="font-extrabold text-lg tracking-tight bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent">
-              AutoShorts <span className="text-violet-400 text-xs font-semibold px-1.5 py-0.5 rounded bg-violet-950/80 border border-violet-500/30">AI</span>
+            <h1 className="font-extrabold text-lg tracking-tight text-white">
+              AutoShorts AI
             </h1>
             <p className="text-[11px] text-gray-400 font-medium">CortesIA Studio v2.5</p>
           </div>

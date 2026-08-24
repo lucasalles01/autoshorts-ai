@@ -2,6 +2,7 @@ import React from 'react';
 import { useAppStore } from '../store/useAppStore';
 import { useAuthStore } from '../store/useAuthStore';
 import { Search, Bell, Sparkles, UserCheck, ShieldCheck, LogOut } from 'lucide-react';
+import { AutoShortsLogo } from './AutoShortsLogo';
 
 export const Header: React.FC = () => {
   const { activeTab, setActiveTab } = useAppStore();
@@ -29,9 +30,13 @@ export const Header: React.FC = () => {
 
   return (
     <header className="h-20 bg-cyber-dark/80 backdrop-blur-md border-b border-cyber-border px-8 flex items-center justify-between sticky top-0 z-20">
-      <div>
-        <h2 className="text-xl font-bold text-white tracking-tight">{currentInfo.title}</h2>
-        <p className="text-xs text-gray-400 font-normal">{currentInfo.subtitle}</p>
+      {/* Logo and Branding */}
+      <div className="flex items-center gap-3">
+        <AutoShortsLogo size={36} />
+        <div>
+          <h1 className="text-xl font-bold text-white tracking-tight">AutoShorts AI</h1>
+          <p className="text-xs text-gray-400 font-normal">{currentInfo.subtitle}</p>
+        </div>
       </div>
 
       <div className="flex items-center gap-5">
