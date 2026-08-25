@@ -25,6 +25,7 @@ import { contentAIService } from './services/content-ai.service.js';
 import { jobQueue, startJobWorker } from './services/job-queue.service.js';
 import { thumbnailService } from './services/thumbnail.service.js';
 import { paymentService } from './services/payment.service.js';
+import { waitlistService } from './services/waitlist.service.js';
 import { startScheduler } from './scheduler.js';
 
 // Local schemas (removed @autoshorts/shared dependency)
@@ -261,6 +262,33 @@ async function bootstrap() {
       token: fastify.jwt.sign({ id: user.id, email: user.email }),
       user: { id: user.id, email: user.email, name: user.name, timezone: user.timezone }
     };
+  });
+
+  // ---------------------------------------------------------------- Waitlist
+  fastify.post('/api/waitlist', async (request, reply) => {
+    const body = request.body as { email: string; name?: string; source?: string };
+    
+    try {
+      const entry = await waitlistService.addToWaitlist(
+        body.email,
+        body.name,
+        body.source || 'landing_page'
+      );
+      
+      return reply.send({ 
+        success: true, 
+        message: 'Você foi adicionado à lista de espera com sucesso!' 
+      });
+    } catch (error) {
+      console.error('Error adding to waitlist:', error);
+      return reply.status(400).send({ 
+        error: error instanceof Error ? error.message : 'Erro ao adicionar à lista de espera' 
+      });
+    }
+  });
+
+  fastify.get('/api/waitlist/stats', async () => {
+    return await waitlistService.getWaitlistStats();
   });
 
   // ---------------------------------------------------------------- Projects

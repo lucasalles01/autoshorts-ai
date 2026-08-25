@@ -28,6 +28,7 @@ model User {
   aiInsights     AIInsight[]
   notifications  Notification[]
   jobs           Job[]
+  waitlist       Waitlist[]
 
   @@map("users")
 }
@@ -272,6 +273,23 @@ model UsageRecord {
 
   @@index([userId, type])
   @@map("usage_records")
+}
+
+// Waitlist Entity
+model Waitlist {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  source    String   @default("landing_page")
+  status    String   @default("PENDING") // PENDING, CONFIRMED, CONVERTED
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+  @@index([status])
+  @@map("waitlist")
 }
 
 // Infrastructure Entity: Job
