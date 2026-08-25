@@ -16,7 +16,8 @@ export type NavTab =
   | 'analytics'
   | 'social_accounts'
   | 'settings'
-  | 'clip_editor';
+  | 'clip_editor'
+  | 'plans';
 
 export interface ClipItem {
   id: string;

@@ -214,7 +214,19 @@ export const api = {
     request<{ success: boolean; results: Array<{ platform: string; success: boolean; error?: string }> }>('/posts/multi-publish', {
       method: 'POST',
       body: JSON.stringify({ clipId, platforms, metadata })
-    })
+    }),
+
+  getPaymentPlans: () =>
+    request<any[]>('/payments/plans'),
+
+  createPaymentIntent: (planId: string) =>
+    request<{ clientSecret: string; paymentId: string }>('/payments/create-intent', {
+      method: 'POST',
+      body: JSON.stringify({ planId })
+    }),
+
+  getUserCredits: () =>
+    request<{ credits: number }>('/payments/credits')
 };
 
 export function mapClipToStore(clip: ApiClip) {

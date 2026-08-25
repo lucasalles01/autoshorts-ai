@@ -8,6 +8,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import AuthPage from './pages/AuthPage';
 import { TermsPage } from './pages/TermsPage';
 import { PrivacyPage } from './pages/PrivacyPage';
+import { PlansPage } from './pages/PlansPage';
 
 // Lazy load pages to isolate any runtime errors
 const Dashboard = lazy(() => import('./pages/Dashboard').then(m => ({ default: m.Dashboard })));
@@ -78,6 +79,8 @@ export const App: React.FC = () => {
         return <SocialAccountsPage />;
       case 'settings':
         return <SettingsPage />;
+      case 'plans':
+        return <PlansPage />;
       default:
         return <Dashboard />;
     }

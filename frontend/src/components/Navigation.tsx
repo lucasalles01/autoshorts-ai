@@ -11,7 +11,8 @@ import {
   Share2,
   Settings,
   Sparkles,
-  Zap
+  Zap,
+  CreditCard
 } from 'lucide-react';
 import { AutoShortsLogo } from './AutoShortsLogo';
 
@@ -27,6 +28,7 @@ export const Navigation: React.FC = () => {
     { id: 'calendar', label: 'Calendário', icon: Calendar },
     { id: 'analytics', label: 'Analytics & IA', icon: BarChart3 },
     { id: 'social_accounts', label: 'Minhas Contas', icon: Share2 },
+    { id: 'plans', label: 'Planos', icon: CreditCard },
     { id: 'settings', label: 'Configurações', icon: Settings }
   ];
 

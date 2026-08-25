@@ -18,7 +18,8 @@ export const Header: React.FC = () => {
     analytics: { title: 'Analytics & IA Feedback Loop', subtitle: 'Inteligência aprendendo com os resultados reais das suas contas.' },
     social_accounts: { title: 'Minhas Contas Sociais', subtitle: 'Conexões de APIs oficiais para TikTok, Reels e YouTube Shorts.' },
     settings: { title: 'Configurações do Sistema', subtitle: 'Ajuste pesos de IA, concorrência de workers e presets de legendas.' },
-    clip_editor: { title: 'Editor Manual & Preview 9:16', subtitle: 'Revisão detalhada, enquadramento inteligente e legendas animadas.' }
+    clip_editor: { title: 'Editor Manual & Preview 9:16', subtitle: 'Revisão detalhada, enquadramento inteligente e legendas animadas.' },
+    plans: { title: 'Planos e Créditos', subtitle: 'Gerencie sua assinatura e créditos de processamento.' }
   };
 
   const currentInfo = titleMap[activeTab] || titleMap.dashboard;

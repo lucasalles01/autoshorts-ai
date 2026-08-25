@@ -24,6 +24,7 @@ import { socialPublisherService } from './services/social-publisher.js';
 import { contentAIService } from './services/content-ai.service.js';
 import { jobQueue, startJobWorker } from './services/job-queue.service.js';
 import { thumbnailService } from './services/thumbnail.service.js';
+import { paymentService } from './services/payment.service.js';
 import { startScheduler } from './scheduler.js';
 
 // Local schemas (removed @autoshorts/shared dependency)
@@ -1400,6 +1401,56 @@ async function bootstrap() {
     const { id } = request.params as { id: string };
     await prisma.socialAccount.delete({ where: { id } });
     return { deleted: true };
+  });
+
+  // ---------------------------------------------------------------- Payments
+  fastify.get('/api/payments/plans', async () => {
+    return paymentService.getAvailablePlans();
+  });
+
+  fastify.post('/api/payments/create-intent', async (request, reply) => {
+    const user = await ensureDemoUser();
+    const body = request.body as { planId: string };
+    
+    try {
+      const paymentIntent = await paymentService.createPaymentIntent(user.id, body.planId);
+      return reply.send(paymentIntent);
+    } catch (error) {
+      console.error('Error creating payment intent:', error);
+      return reply.status(500).send({ error: 'Erro ao criar intenção de pagamento' });
+    }
+  });
+
+  fastify.post('/api/payments/webhook/stripe', async (request, reply) => {
+    const signature = request.headers['stripe-signature'] as string;
+    const payload = request.body as string;
+    
+    try {
+      const event = await paymentService.handleStripeWebhook(payload, signature);
+      return reply.send({ received: true, eventId: event.event });
+    } catch (error) {
+      console.error('Error processing Stripe webhook:', error);
+      return reply.status(400).send({ error: 'Invalid webhook signature' });
+    }
+  });
+
+  fastify.post('/api/payments/webhook/mercadopago', async (request, reply) => {
+    const signature = request.headers['x-signature'] as string;
+    const payload = request.body as string;
+    
+    try {
+      const event = await paymentService.handleMercadoPagoWebhook(payload, signature);
+      return reply.send({ received: true, eventId: event.event });
+    } catch (error) {
+      console.error('Error processing Mercado Pago webhook:', error);
+      return reply.status(400).send({ error: 'Invalid webhook signature' });
+    }
+  });
+
+  fastify.get('/api/payments/credits', async () => {
+    const user = await ensureDemoUser();
+    const credits = await paymentService.getUserCredits(user.id);
+    return { credits };
   });
 
   // ---------------------------------------------------------------- Analytics
