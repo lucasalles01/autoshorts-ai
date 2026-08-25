@@ -26,6 +26,7 @@ import { jobQueue, startJobWorker } from './services/job-queue.service.js';
 import { thumbnailService } from './services/thumbnail.service.js';
 import { paymentService } from './services/payment.service.js';
 import { waitlistService } from './services/waitlist.service.js';
+import { emailService } from './services/email.service.js';
 import { startScheduler } from './scheduler.js';
 
 // Local schemas (removed @autoshorts/shared dependency)
@@ -244,6 +245,14 @@ async function bootstrap() {
       }
     });
 
+    // Enviar email de boas-vindas
+    try {
+      await emailService.sendWelcomeEmail(body.email, user.name);
+    } catch (emailError) {
+      console.error('Error sending welcome email:', emailError);
+      // Não falhar o registro se o email falhar
+    }
+
     return {
       token: fastify.jwt.sign({ id: user.id, email: user.email }),
       user: { id: user.id, email: user.email, name: user.name, timezone: user.timezone }
@@ -274,6 +283,14 @@ async function bootstrap() {
         body.name,
         body.source || 'landing_page'
       );
+      
+      // Enviar email de confirmação
+      try {
+        await emailService.sendWaitlistConfirmation(body.email, body.name);
+      } catch (emailError) {
+        console.error('Error sending waitlist email:', emailError);
+        // Não falhar o request se o email falhar
+      }
       
       return reply.send({ 
         success: true, 
