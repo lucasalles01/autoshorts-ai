@@ -1,9 +1,49 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAppStore } from '../store/useAppStore';
-import { BarChart3, TrendingUp, Sparkles, CheckCircle2, RefreshCw, Eye, ThumbsUp, MessageSquare, Share2 } from 'lucide-react';
+import { api } from '../api/client';
+import { BarChart3, TrendingUp, Sparkles, CheckCircle2, RefreshCw, Eye, ThumbsUp, MessageSquare, Share2, Video, Clock, Calendar } from 'lucide-react';
 
 export const AnalyticsPage: React.FC = () => {
   const { setActiveTab } = useAppStore();
+  const [analyticsData, setAnalyticsData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [timeRange, setTimeRange] = useState<'week' | 'month' | 'year'>('month');
+
+  useEffect(() => {
+    loadAnalytics();
+  }, [timeRange]);
+
+  const loadAnalytics = async () => {
+    setLoading(true);
+    try {
+      const data = await api.getAnalytics();
+      setAnalyticsData(data);
+    } catch (error) {
+      console.error('Erro ao carregar analytics:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Dados mockados caso a API não retorne dados
+  const mockData = {
+    kpis: {
+      totalVideos: 127,
+      totalMinutesProcessed: 8540,
+      completedPublications: 98,
+      avgEngagementRate: 12.5
+    },
+    monthlyStats: [
+      { month: 'Jan', videos: 12, minutes: 420, publications: 10 },
+      { month: 'Fev', videos: 18, minutes: 680, publications: 15 },
+      { month: 'Mar', videos: 25, minutes: 950, publications: 22 },
+      { month: 'Abr', videos: 32, minutes: 1240, publications: 28 },
+      { month: 'Mai', videos: 28, minutes: 1100, publications: 25 },
+      { month: 'Jun', videos: 35, minutes: 1350, publications: 32 }
+    ]
+  };
+
+  const data = analyticsData || mockData;
 
   return (
     <div className="space-y-8 pb-12">
@@ -40,70 +80,131 @@ export const AnalyticsPage: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="p-5 rounded-xl glass-panel border border-cyber-border space-y-2">
           <span className="text-xs font-semibold text-gray-400 flex items-center gap-2">
-            <Eye className="w-4 h-4 text-violet-400" />
-            Visualizações Acumuladas
+            <Video className="w-4 h-4 text-violet-400" />
+            Vídeos Gerados
           </span>
-          <p className="text-3xl font-extrabold text-white">1.485.000</p>
-          <span className="text-[11px] font-semibold text-emerald-400">+24% vs. mês anterior</span>
+          <p className="text-3xl font-extrabold text-white">{data.kpis.totalVideos}</p>
+          <span className="text-[11px] font-semibold text-emerald-400">Total processado</span>
         </div>
 
         <div className="p-5 rounded-xl glass-panel border border-cyber-border space-y-2">
           <span className="text-xs font-semibold text-gray-400 flex items-center gap-2">
-            <ThumbsUp className="w-4 h-4 text-cyan-400" />
-            Curtidas Totais
+            <Clock className="w-4 h-4 text-cyan-400" />
+            Minutos Processados
           </span>
-          <p className="text-3xl font-extrabold text-white">142.800</p>
-          <span className="text-[11px] font-semibold text-emerald-400">+18% vs. mês anterior</span>
+          <p className="text-3xl font-extrabold text-white">{Math.round(data.kpis.totalMinutesProcessed)} min</p>
+          <span className="text-[11px] font-semibold text-emerald-400">Tempo total</span>
         </div>
 
         <div className="p-5 rounded-xl glass-panel border border-cyber-border space-y-2">
           <span className="text-xs font-semibold text-gray-400 flex items-center gap-2">
-            <MessageSquare className="w-4 h-4 text-amber-400" />
-            Comentários Gerados
+            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+            Publicações Concluídas
           </span>
-          <p className="text-3xl font-extrabold text-white">18.420</p>
-          <span className="text-[11px] font-semibold text-emerald-400">+31% vs. mês anterior</span>
+          <p className="text-3xl font-extrabold text-white">{data.kpis.completedPublications}</p>
+          <span className="text-[11px] font-semibold text-emerald-400">Sucesso total</span>
         </div>
 
         <div className="p-5 rounded-xl glass-panel border border-cyber-border space-y-2">
           <span className="text-xs font-semibold text-gray-400 flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-emerald-400" />
-            Retenção Média Final
+            <TrendingUp className="w-4 h-4 text-purple-400" />
+            Taxa de Engajamento
           </span>
-          <p className="text-3xl font-extrabold text-white">86.4%</p>
-          <span className="text-[11px] font-semibold text-emerald-400">Excelente (Top 5%)</span>
+          <p className="text-3xl font-extrabold text-white">{data.kpis.avgEngagementRate}%</p>
+          <span className="text-[11px] font-semibold text-emerald-400">Média geral</span>
         </div>
       </div>
 
-      {/* Top Performing Content Reuse Trigger */}
-      <div className="p-6 rounded-2xl glass-panel border border-cyber-border space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-base font-bold text-white">Reutilizar Conteúdo de Alto Desempenho</h3>
-            <p className="text-xs text-gray-400">Cortes com desempenho 80%+ acima da média que podem ser reagendados com novas legendas ou ganchos.</p>
+      {/* Time Range Selector */}
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-semibold text-white">Histórico de Publicações</h3>
+        <div className="flex gap-2">
+          {(['week', 'month', 'year'] as const).map((range) => (
+            <button
+              key={range}
+              onClick={() => setTimeRange(range)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                timeRange === range
+                  ? 'bg-purple-600 text-white'
+                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+              }`}
+            >
+              {range === 'week' ? 'Semana' : range === 'month' ? 'Mês' : 'Ano'}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Monthly Charts */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="p-6 rounded-xl glass-panel border border-cyber-border space-y-4">
+          <h4 className="text-sm font-semibold text-white flex items-center gap-2">
+            <Video className="w-4 h-4 text-violet-400" />
+            Vídeos por Mês
+          </h4>
+          <div className="h-48 flex items-end justify-between gap-2">
+            {data.monthlyStats.map((stat: any, index: number) => (
+              <div key={index} className="flex-1 flex flex-col items-center gap-2">
+                <div
+                  className="w-full bg-gradient-to-t from-violet-600 to-cyan-400 rounded-t"
+                  style={{ height: `${(stat.videos / 40) * 100}%` }}
+                />
+                <span className="text-xs text-gray-400">{stat.month}</span>
+              </div>
+            ))}
           </div>
-          <button
-            onClick={() => setActiveTab('new_project')}
-            className="py-2.5 px-5 rounded-xl font-bold text-xs bg-emerald-600 hover:bg-emerald-500 text-white shadow-md flex items-center gap-2"
-          >
-            <RefreshCw className="w-4 h-4" />
-            <span>Reagendar Melhor Vídeo</span>
-          </button>
         </div>
 
-        <div className="p-4 rounded-xl bg-cyber-dark border border-cyber-border flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-16 bg-black rounded-lg border border-violet-500/40 flex items-center justify-center text-xs font-bold text-violet-400">
-              9:16
-            </div>
-            <div>
-              <h4 className="font-bold text-xs text-white">ELE NÃO ESPERAVA ESSA RESPOSTA 😳</h4>
-              <p className="text-[11px] text-gray-400">Publicado no TikTok & Reels • 485K visualizações • 42K curtidas</p>
-            </div>
+        <div className="p-6 rounded-xl glass-panel border border-cyber-border space-y-4">
+          <h4 className="text-sm font-semibold text-white flex items-center gap-2">
+            <Clock className="w-4 h-4 text-cyan-400" />
+            Minutos Processados por Mês
+          </h4>
+          <div className="h-48 flex items-end justify-between gap-2">
+            {data.monthlyStats.map((stat: any, index: number) => (
+              <div key={index} className="flex-1 flex flex-col items-center gap-2">
+                <div
+                  className="w-full bg-gradient-to-t from-cyan-600 to-emerald-400 rounded-t"
+                  style={{ height: `${(stat.minutes / 1500) * 100}%` }}
+                />
+                <span className="text-xs text-gray-400">{stat.month}</span>
+              </div>
+            ))}
           </div>
-          <span className="px-3 py-1 rounded-full bg-emerald-950 text-emerald-400 font-extrabold text-xs border border-emerald-500/30">
-            Desempenho +94% Superior
-          </span>
+        </div>
+      </div>
+
+      {/* Publications History */}
+      <div className="p-6 rounded-xl glass-panel border border-cyber-border space-y-4">
+        <h4 className="text-sm font-semibold text-white flex items-center gap-2">
+          <Calendar className="w-4 h-4 text-emerald-400" />
+          Histórico de Publicações
+        </h4>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-left text-gray-400 border-b border-cyber-border">
+                <th className="pb-3">Mês</th>
+                <th className="pb-3">Vídeos</th>
+                <th className="pb-3">Minutos</th>
+                <th className="pb-3">Publicações</th>
+                <th className="pb-3">Taxa de Sucesso</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.monthlyStats.map((stat: any, index: number) => (
+                <tr key={index} className="border-b border-cyber-border/50">
+                  <td className="py-3 text-white">{stat.month}</td>
+                  <td className="py-3 text-gray-300">{stat.videos}</td>
+                  <td className="py-3 text-gray-300">{stat.minutes} min</td>
+                  <td className="py-3 text-gray-300">{stat.publications}</td>
+                  <td className="py-3 text-emerald-400">
+                    {Math.round((stat.publications / stat.videos) * 100)}%
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

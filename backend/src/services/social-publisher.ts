@@ -315,6 +315,31 @@ export class SocialPublisherService {
   }
 
   /**
+   * Publica diretamente para uma conta específica (usado para multi-platform publishing)
+   */
+  public async publishToAccount(
+    platform: string,
+    accessToken: string,
+    payload: PublishPayload
+  ): Promise<PublishResult> {
+    const adapter = this.adapters.get(platform as SocialPlatform);
+    if (!adapter) {
+      return { success: false, error: `Plataforma não suportada: ${platform}` };
+    }
+
+    try {
+      const decryptedToken = this.decryptToken(accessToken);
+      return await adapter.publish(decryptedToken, payload);
+    } catch (error) {
+      console.error(`Erro ao publicar na plataforma ${platform}:`, error);
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Erro desconhecido ao publicar' 
+      };
+    }
+  }
+
+  /**
    * Publica um agendamento existente. Atualiza status, tentativas e erro no banco.
    * Contas marcadas como mock NUNCA reportam sucesso falso.
    */
