@@ -10,6 +10,7 @@ import { TermsPage } from './pages/TermsPage';
 import { PrivacyPage } from './pages/PrivacyPage';
 import { PlansPage } from './pages/PlansPage';
 import { LandingPage } from './pages/LandingPage';
+import { HelpCenterPage } from './pages/HelpCenterPage';
 
 // Lazy load pages to isolate any runtime errors
 const Dashboard = lazy(() => import('./pages/Dashboard').then(m => ({ default: m.Dashboard })));
@@ -94,6 +95,7 @@ export const App: React.FC = () => {
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/terms" element={<TermsPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/help" element={<HelpCenterPage />} />
         <Route path="/*" element={
           <ProtectedRoute>
             <div className="flex min-h-screen bg-cyber-dark text-gray-100 font-sans antialiased">

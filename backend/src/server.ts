@@ -27,6 +27,7 @@ import { thumbnailService } from './services/thumbnail.service.js';
 import { paymentService } from './services/payment.service.js';
 import { waitlistService } from './services/waitlist.service.js';
 import { emailService } from './services/email.service.js';
+import { ttsService } from './services/tts.service.js';
 import { startScheduler } from './scheduler.js';
 
 // Local schemas (removed @autoshorts/shared dependency)
@@ -1496,6 +1497,46 @@ async function bootstrap() {
     const user = await ensureDemoUser();
     const credits = await paymentService.getUserCredits(user.id);
     return { credits };
+  });
+
+  // ---------------------------------------------------------------- TTS (Text-to-Speech)
+  fastify.get('/api/tts/voices', async () => {
+    return ttsService.getAvailableVoices();
+  });
+
+  fastify.post('/api/tts/generate', async (request, reply) => {
+    const body = request.body as { text: string; voiceId: string; outputFormat?: string };
+    
+    try {
+      const audioBuffer = await ttsService.generateSpeech({
+        text: body.text,
+        voiceId: body.voiceId,
+        outputFormat: (body.outputFormat as 'mp3' | 'wav') || 'mp3'
+      });
+      
+      reply.header('Content-Type', 'audio/mpeg');
+      return reply.send(audioBuffer);
+    } catch (error) {
+      console.error('Error generating speech:', error);
+      return reply.status(500).send({ error: 'Erro ao gerar fala' });
+    }
+  });
+
+  fastify.post('/api/tts/preview', async (request, reply) => {
+    const body = request.body as { voiceId: string; sampleText?: string };
+    
+    try {
+      const audioBuffer = await ttsService.previewVoice(
+        body.voiceId,
+        body.sampleText || 'Olá, este é um exemplo da voz selecionada.'
+      );
+      
+      reply.header('Content-Type', 'audio/mpeg');
+      return reply.send(audioBuffer);
+    } catch (error) {
+      console.error('Error previewing voice:', error);
+      return reply.status(500).send({ error: 'Erro ao fazer preview da voz' });
+    }
   });
 
   // ---------------------------------------------------------------- Analytics

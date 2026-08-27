@@ -226,7 +226,22 @@ export const api = {
     }),
 
   getUserCredits: () =>
-    request<{ credits: number }>('/payments/credits')
+    request<{ credits: number }>('/payments/credits'),
+
+  getTTSVoices: () =>
+    request<any[]>('/tts/voices'),
+
+  generateTTS: (text: string, voiceId: string, outputFormat?: 'mp3' | 'wav') =>
+    request('/tts/generate', {
+      method: 'POST',
+      body: JSON.stringify({ text, voiceId, outputFormat })
+    }),
+
+  previewVoice: (voiceId: string, sampleText?: string) =>
+    request('/tts/preview', {
+      method: 'POST',
+      body: JSON.stringify({ voiceId, sampleText })
+    })
 };
 
 export function mapClipToStore(clip: ApiClip) {
