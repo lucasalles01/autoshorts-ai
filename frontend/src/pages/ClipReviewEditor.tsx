@@ -18,6 +18,7 @@ import {
   ArrowLeft,
   X
 } from 'lucide-react';
+import { CaptionPreview } from '../components/CaptionPreview';
 
 export const ClipReviewEditor: React.FC = () => {
   const { selectedClip, clips, setSelectedClip, setActiveTab, updateClipCaption, addScheduledPost, approveClip, rejectClip } = useAppStore();
@@ -36,6 +37,8 @@ export const ClipReviewEditor: React.FC = () => {
   const [captionText, setCaptionText] = useState<string>(clip?.captionText || clip?.quoteSnippet || '');
   const [primaryColor, setPrimaryColor] = useState<string>('#FFFFFF');
   const [highlightColor, setHighlightColor] = useState<string>('#FACC15');
+  const [fontSize, setFontSize] = useState<number>(24);
+  const [captionPosition, setCaptionPosition] = useState<'CENTER_BOTTOM' | 'CENTER' | 'TOP'>('CENTER_BOTTOM');
 
   const [tiktokTitle, setTiktokTitle] = useState<string>(clip?.title || 'Título do vídeo');
   const [tiktokDesc, setTiktokDesc] = useState<string>('Descrição do vídeo #shorts #viral');
@@ -148,68 +151,19 @@ export const ClipReviewEditor: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left: 9:16 Vertical Video Preview (Col 5) */}
         <div className="lg:col-span-5 flex flex-col items-center">
-          <div className="relative w-full max-w-[340px] aspect-[9/16] bg-black rounded-3xl border-4 border-cyber-border shadow-2xl overflow-hidden group">
-            {/* Simulated Video Player */}
-            <video
-              src={clip.videoUrl}
-              className="w-full h-full object-cover"
-              controls={false}
-              loop
-              muted
-            />
-
-            {/* Smart Framing Bounding Box Overlay */}
-            {framingMode === 'FACE_TRACKING' && (
-              <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-44 h-44 border-2 border-dashed border-cyan-400/80 rounded-2xl flex flex-col justify-between p-2 pointer-events-none animate-pulse">
-                <div className="flex justify-between">
-                  <span className="w-3 h-3 border-t-2 border-l-2 border-cyan-400" />
-                  <span className="w-3 h-3 border-t-2 border-r-2 border-cyan-400" />
-                </div>
-                <div className="text-[10px] font-bold text-cyan-400 bg-black/60 px-2 py-0.5 rounded text-center self-center backdrop-blur-md">
-                  Face Tracking AI: (X: 0.52, Y: 0.35)
-                </div>
-                <div className="flex justify-between">
-                  <span className="w-3 h-3 border-b-2 border-l-2 border-cyan-400" />
-                  <span className="w-3 h-3 border-b-2 border-r-2 border-cyan-400" />
-                </div>
-              </div>
-            )}
-
-            {/* Dynamic Animated Captions Overlay */}
-            <div className="absolute bottom-20 left-4 right-4 text-center pointer-events-none z-10">
-              <div
-                className={`inline-block px-4 py-2 rounded-xl backdrop-blur-md transition-all ${
-                  captionStyle === 'VIRAL'
-                    ? 'bg-black/80 font-black uppercase text-xl text-white tracking-wide border border-yellow-500/40 drop-shadow-lg'
-                    : captionStyle === 'MODERN'
-                    ? 'bg-cyan-950/80 font-bold text-lg text-cyan-300 border border-cyan-400/40'
-                    : captionStyle === 'MINIMAL'
-                    ? 'bg-black/60 text-sm text-gray-100 font-medium'
-                    : 'bg-violet-950/80 font-semibold text-base text-violet-200 border border-violet-500/40'
-                }`}
-              >
-                {captionText}
-              </div>
-            </div>
-
-            {/* Controls Overlay */}
-            <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
-              <button
-                onClick={() => setIsPlaying(!isPlaying)}
-                className="w-14 h-14 rounded-full bg-violet-600 text-white flex items-center justify-center shadow-xl transform hover:scale-105"
-              >
-                {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ml-1" />}
-              </button>
-            </div>
-
-            {/* 9:16 Safe Area Indicator Badge */}
-            <div className="absolute top-4 left-4 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-[10px] font-bold text-gray-300 border border-white/10">
-              9:16 (1080x1920) Safe Zone
-            </div>
-          </div>
+          <CaptionPreview
+            videoUrl={clip.videoUrl}
+            captionText={captionText}
+            captionStyle={captionStyle}
+            primaryColor={primaryColor}
+            highlightColor={highlightColor}
+            fontSize={fontSize}
+            position={captionPosition}
+            onPlayStateChange={setIsPlaying}
+          />
 
           <p className="text-xs text-gray-400 mt-3 text-center">
-            Enquadramento Clamp: <strong className="text-cyan-400">x = clamp(xCenter - w/2, 0, originalW - w)</strong>
+            Prévia em tempo real: <strong className="text-cyan-400">Alterações refletem instantaneamente</strong>
           </p>
         </div>
 
@@ -386,6 +340,37 @@ export const ClipReviewEditor: React.FC = () => {
                     />
                     <span className="text-xs font-mono text-gray-300">{highlightColor}</span>
                   </div>
+                </div>
+              </div>
+
+              {/* Font Size and Position */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-gray-300">Tamanho da Fonte:</label>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="range"
+                      min="16"
+                      max="48"
+                      value={fontSize}
+                      onChange={(e) => setFontSize(parseInt(e.target.value))}
+                      className="flex-1 h-2 bg-cyber-border rounded-lg appearance-none cursor-pointer accent-violet-500"
+                    />
+                    <span className="text-xs font-mono text-gray-300 w-8">{fontSize}px</span>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-gray-300">Posição da Legenda:</label>
+                  <select
+                    value={captionPosition}
+                    onChange={(e) => setCaptionPosition(e.target.value as any)}
+                    className="w-full glass-input text-xs rounded-xl p-3 text-gray-200"
+                  >
+                    <option value="CENTER_BOTTOM">Centro Inferior (Padrão)</option>
+                    <option value="CENTER">Centro da Tela</option>
+                    <option value="TOP">Topo da Tela</option>
+                  </select>
                 </div>
               </div>
             </div>

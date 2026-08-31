@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { useAppStore } from '../store/useAppStore';
 import { api, mapClipToStore, pollJob } from '../api/client';
 import { RenderProgress } from '../components/RenderProgress';
+import { NichePresets, NichePreset } from '../components/NichePresets';
 import {
   Upload,
   Sparkles,
@@ -61,6 +62,17 @@ export const NewProjectWizard: React.FC = () => {
   const [preferredTimes, setPreferredTimes] = useState(['12:00', '19:00']);
   const [targetPlatforms, setTargetPlatforms] = useState(['TIKTOK']);
   const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
+  
+  // Niche preset configuration
+  const [selectedPreset, setSelectedPreset] = useState<NichePreset | null>(null);
+  const [captionStyle, setCaptionStyle] = useState<'VIRAL' | 'MODERN' | 'MINIMAL' | 'PROFESSIONAL'>('VIRAL');
+  const [primaryColor, setPrimaryColor] = useState('#FFFFFF');
+  const [highlightColor, setHighlightColor] = useState('#FACC15');
+  const [fontSize, setFontSize] = useState(24);
+  const [captionPosition, setCaptionPosition] = useState<'CENTER_BOTTOM' | 'CENTER' | 'TOP'>('CENTER_BOTTOM');
+  const [framingMode, setFramingMode] = useState<'FACE_TRACKING' | 'SUBJECT_TRACKING' | 'CENTER_CROP'>('FACE_TRACKING');
+  const [silenceRemoval, setSilenceRemoval] = useState('MEDIUM');
+  const [selectedVoice, setSelectedVoice] = useState<string>('');
   
   const clipOptions = [5, 10, 15, 50, 100, 400];
   const durationOptions = [30, 45, 58, 90, 120, 180, 240];
@@ -184,6 +196,20 @@ export const NewProjectWizard: React.FC = () => {
     setApprovedClips((prev) =>
       prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
     );
+  };
+
+  const handleApplyPreset = (preset: NichePreset) => {
+    setSelectedPreset(preset);
+    setCaptionStyle(preset.config.captionStyle);
+    setPrimaryColor(preset.config.primaryColor);
+    setHighlightColor(preset.config.highlightColor);
+    setFontSize(preset.config.fontSize);
+    setCaptionPosition(preset.config.captionPosition);
+    setFramingMode(preset.config.framingMode);
+    setSilenceRemoval(preset.config.silenceRemoval);
+    if (preset.config.voiceId) {
+      setSelectedVoice(preset.config.voiceId);
+    }
   };
 
   const handleFinish = async () => {
@@ -396,6 +422,12 @@ export const NewProjectWizard: React.FC = () => {
             </div>
           )}
 
+          {/* Niche Presets */}
+          <NichePresets
+            onApplyPreset={handleApplyPreset}
+            disabled={isScanning}
+          />
+
           {/* Configurações Avançadas */}
           <div className="p-4 rounded-xl glass-panel border border-cyber-border space-y-4">
             <button
@@ -515,6 +547,113 @@ export const NewProjectWizard: React.FC = () => {
                       </button>
                     ))}
                   </div>
+                </div>
+
+                {/* Caption Style Configuration */}
+                <div className="space-y-3 pt-4 border-t border-cyber-border">
+                  <h4 className="text-xs font-bold text-gray-300">🎨 Estilo de Legendas</h4>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs font-bold text-gray-300 block mb-2">Estilo</label>
+                      <select
+                        value={captionStyle}
+                        onChange={(e) => setCaptionStyle(e.target.value as any)}
+                        className="w-full glass-input text-sm rounded-xl p-3 text-gray-200"
+                      >
+                        <option value="VIRAL">Viral</option>
+                        <option value="MODERN">Moderno</option>
+                        <option value="MINIMAL">Minimalista</option>
+                        <option value="PROFESSIONAL">Profissional</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold text-gray-300 block mb-2">Posição</label>
+                      <select
+                        value={captionPosition}
+                        onChange={(e) => setCaptionPosition(e.target.value as any)}
+                        className="w-full glass-input text-sm rounded-xl p-3 text-gray-200"
+                      >
+                        <option value="CENTER_BOTTOM">Centro Inferior</option>
+                        <option value="CENTER">Centro</option>
+                        <option value="TOP">Topo</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs font-bold text-gray-300 block mb-2">Cor Principal</label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={primaryColor}
+                          onChange={(e) => setPrimaryColor(e.target.value)}
+                          className="w-8 h-8 rounded border border-cyber-border cursor-pointer"
+                        />
+                        <span className="text-xs font-mono text-gray-300">{primaryColor}</span>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold text-gray-300 block mb-2">Cor de Destaque</label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={highlightColor}
+                          onChange={(e) => setHighlightColor(e.target.value)}
+                          className="w-8 h-8 rounded border border-cyber-border cursor-pointer"
+                        />
+                        <span className="text-xs font-mono text-gray-300">{highlightColor}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-gray-300 block mb-2">Tamanho da Fonte: {fontSize}px</label>
+                    <input
+                      type="range"
+                      min="16"
+                      max="32"
+                      value={fontSize}
+                      onChange={(e) => setFontSize(parseInt(e.target.value))}
+                      className="w-full h-2 bg-cyber-border rounded-lg appearance-none cursor-pointer accent-violet-500"
+                    />
+                  </div>
+                </div>
+
+                {/* Voice and Framing */}
+                <div className="space-y-3 pt-4 border-t border-cyber-border">
+                  <h4 className="text-xs font-bold text-gray-300">🎬 Configurações de Vídeo</h4>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs font-bold text-gray-300 block mb-2">Modo de Enquadramento</label>
+                      <select
+                        value={framingMode}
+                        onChange={(e) => setFramingMode(e.target.value as any)}
+                        className="w-full glass-input text-sm rounded-xl p-3 text-gray-200"
+                      >
+                        <option value="FACE_TRACKING">Rastreamento Facial</option>
+                        <option value="SUBJECT_TRACKING">Rastreamento de Assunto</option>
+                        <option value="CENTER_CROP">Corte Central</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold text-gray-300 block mb-2">Remoção de Silêncio</label>
+                      <select
+                        value={silenceRemoval}
+                        onChange={(e) => setSilenceRemoval(e.target.value)}
+                        className="w-full glass-input text-sm rounded-xl p-3 text-gray-200"
+                      >
+                        <option value="OFF">Desativado</option>
+                        <option value="LIGHT">Leve</option>
+                        <option value="MEDIUM">Médio</option>
+                        <option value="AGGRESSIVE">Agressivo</option>
+                      </select>
+                    </div>
+                  </div>
+                  {selectedPreset && (
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-violet-600/20 border border-violet-500/40">
+                      <span className="text-xs text-violet-300">Preset ativo:</span>
+                      <span className="text-xs font-bold text-white">{selectedPreset.name}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
