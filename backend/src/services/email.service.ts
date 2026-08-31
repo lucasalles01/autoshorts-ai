@@ -41,9 +41,13 @@ export class EmailService {
         throw new Error(`Email sending failed: ${response.statusText}`);
       }
 
-      console.log('Email sent successfully to:', to);
+      if (env.NODE_ENV === 'development') {
+        console.log('Email sent successfully to:', to);
+      }
     } catch (error) {
-      console.error('Error sending email:', error);
+      if (env.NODE_ENV === 'development') {
+        console.error('Error sending email:', error);
+      }
       throw error;
     }
   }

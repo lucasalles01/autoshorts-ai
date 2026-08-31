@@ -1,4 +1,5 @@
 import { prisma } from '../database/client.js';
+import { env } from '../config/env.js';
 
 export interface JobQueue {
   enqueueJob: (jobData: any) => Promise<string>;
@@ -81,14 +82,18 @@ export const jobQueue = new SimpleJobQueue();
 
 // Worker para processar jobs em background
 export async function startJobWorker(): Promise<void> {
-  console.log('🚀 Starting job worker...');
+  if (env.NODE_ENV === 'development') {
+    console.log('🚀 Starting job worker...');
+  }
 
   const processNextJob = async () => {
     try {
       const job = await jobQueue.dequeueJob();
       
       if (job) {
-        console.log(`📋 Processing job ${job.id} of type ${job.type}`);
+        if (env.NODE_ENV === 'development') {
+          console.log(`📋 Processing job ${job.id} of type ${job.type}`);
+        }
         
         try {
           // Processar job baseado no tipo
@@ -106,7 +111,9 @@ export async function startJobWorker(): Promise<void> {
         }
       }
     } catch (error) {
-      console.error('Error in job worker:', error);
+      if (env.NODE_ENV === 'development') {
+        console.error('Error in job worker:', error);
+      }
     }
 
     // Continuar processando

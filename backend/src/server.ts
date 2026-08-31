@@ -250,7 +250,9 @@ async function bootstrap() {
     try {
       await emailService.sendWelcomeEmail(body.email, user.name);
     } catch (emailError) {
-      console.error('Error sending welcome email:', emailError);
+      if (env.NODE_ENV === 'development') {
+        console.error('Error sending welcome email:', emailError);
+      }
       // Não falhar o registro se o email falhar
     }
 
@@ -289,7 +291,9 @@ async function bootstrap() {
       try {
         await emailService.sendWaitlistConfirmation(body.email, body.name);
       } catch (emailError) {
+        if (env.NODE_ENV === 'development') {
         console.error('Error sending waitlist email:', emailError);
+      }
         // Não falhar o request se o email falhar
       }
       
@@ -298,7 +302,9 @@ async function bootstrap() {
         message: 'Você foi adicionado à lista de espera com sucesso!' 
       });
     } catch (error) {
-      console.error('Error adding to waitlist:', error);
+      if (env.NODE_ENV === 'development') {
+        console.error('Error adding to waitlist:', error);
+      }
       return reply.status(400).send({ 
         error: error instanceof Error ? error.message : 'Erro ao adicionar à lista de espera' 
       });
@@ -541,7 +547,9 @@ async function bootstrap() {
       const suggestions = await contentAIService.generateContentSuggestions(script, theme);
       return reply.send(suggestions);
     } catch (error) {
-      console.error('Error generating content suggestions:', error);
+      if (env.NODE_ENV === 'development') {
+        console.error('Error generating content suggestions:', error);
+      }
       return reply.status(500).send({ error: 'Erro ao gerar sugestões de conteúdo' });
     }
   });
@@ -587,7 +595,9 @@ async function bootstrap() {
         thumbnailKey 
       });
     } catch (error) {
-      console.error('Error generating thumbnail:', error);
+      if (env.NODE_ENV === 'development') {
+        console.error('Error generating thumbnail:', error);
+      }
       return reply.status(500).send({ error: 'Erro ao gerar thumbnail' });
     }
   });
@@ -611,7 +621,9 @@ async function bootstrap() {
       reply.header('Content-Type', 'image/jpeg');
       return reply.send(fs.createReadStream(thumbnailPath));
     } catch (error) {
-      console.error('Error serving thumbnail:', error);
+      if (env.NODE_ENV === 'development') {
+        console.error('Error serving thumbnail:', error);
+      }
       return reply.status(500).send({ error: 'Erro ao servir thumbnail' });
     }
   });
@@ -843,7 +855,9 @@ async function bootstrap() {
 
       return reply.send({ success: true, results });
     } catch (error) {
-      console.error('Erro ao publicar em múltiplas plataformas:', error);
+      if (env.NODE_ENV === 'development') {
+        console.error('Erro ao publicar em múltiplas plataformas:', error);
+      }
       return reply.status(500).send({ error: 'Erro ao publicar em múltiplas plataformas' });
     }
   });
@@ -991,7 +1005,9 @@ async function bootstrap() {
       const userInfo = await userInfoResponse.json() as { error?: string; data?: { user?: { open_id?: string; display_name?: string } } };
 
       if (!userInfoResponse.ok || userInfo.error) {
-        console.error('Erro ao obter informações do usuário:', userInfo);
+        if (env.NODE_ENV === 'development') {
+          console.error('Erro ao obter informações do usuário:', userInfo);
+        }
       }
 
       const openId = userInfo.data?.user?.open_id || 'unknown';
@@ -1034,7 +1050,9 @@ async function bootstrap() {
         message: 'Conta do TikTok conectada com sucesso!'
       };
     } catch (error: any) {
-      console.error('Erro no callback TikTok:', error);
+      if (env.NODE_ENV === 'development') {
+        console.error('Erro no callback TikTok:', error);
+      }
       return reply.status(500).send({ 
         error: 'Erro ao processar callback',
         details: error.message
@@ -1195,7 +1213,9 @@ async function bootstrap() {
         message: 'Conta do YouTube conectada com sucesso!'
       };
     } catch (error: any) {
-      console.error('Erro no callback YouTube:', error);
+      if (env.NODE_ENV === 'development') {
+        console.error('Erro no callback YouTube:', error);
+      }
       return reply.status(500).send({ 
         error: 'Erro ao processar callback',
         details: error.message
@@ -1304,7 +1324,9 @@ async function bootstrap() {
       const userInfo = await userInfoResponse.json() as { error?: string; id?: string; name?: string };
 
       if (!userInfoResponse.ok || userInfo.error) {
-        console.error('Erro ao obter informações do usuário:', userInfo);
+        if (env.NODE_ENV === 'development') {
+          console.error('Erro ao obter informações do usuário:', userInfo);
+        }
       }
 
       const facebookId = userInfo.id || 'unknown';
@@ -1351,7 +1373,9 @@ async function bootstrap() {
         message: 'Conta do Instagram conectada com sucesso!'
       };
     } catch (error: any) {
-      console.error('Erro no callback Instagram:', error);
+      if (env.NODE_ENV === 'development') {
+        console.error('Erro no callback Instagram:', error);
+      }
       return reply.status(500).send({ 
         error: 'Erro ao processar callback',
         details: error.message
@@ -1442,7 +1466,9 @@ async function bootstrap() {
       const paymentIntent = await paymentService.createPaymentIntent(user.id, body.planId);
       return reply.send(paymentIntent);
     } catch (error) {
-      console.error('Error creating payment intent:', error);
+      if (env.NODE_ENV === 'development') {
+        console.error('Error creating payment intent:', error);
+      }
       return reply.status(500).send({ error: 'Erro ao criar intenção de pagamento' });
     }
   });
@@ -1455,7 +1481,9 @@ async function bootstrap() {
       const event = await paymentService.handleStripeWebhook(payload, signature);
       return reply.send({ received: true, eventId: event.event });
     } catch (error) {
-      console.error('Error processing Stripe webhook:', error);
+      if (env.NODE_ENV === 'development') {
+        console.error('Error processing Stripe webhook:', error);
+      }
       return reply.status(400).send({ error: 'Invalid webhook signature' });
     }
   });
@@ -1468,7 +1496,9 @@ async function bootstrap() {
       const event = await paymentService.handleMercadoPagoWebhook(payload, signature);
       return reply.send({ received: true, eventId: event.event });
     } catch (error) {
-      console.error('Error processing Mercado Pago webhook:', error);
+      if (env.NODE_ENV === 'development') {
+        console.error('Error processing Mercado Pago webhook:', error);
+      }
       return reply.status(400).send({ error: 'Invalid webhook signature' });
     }
   });
@@ -1497,7 +1527,9 @@ async function bootstrap() {
       reply.header('Content-Type', 'audio/mpeg');
       return reply.send(audioBuffer);
     } catch (error) {
-      console.error('Error generating speech:', error);
+      if (env.NODE_ENV === 'development') {
+        console.error('Error generating speech:', error);
+      }
       return reply.status(500).send({ error: 'Erro ao gerar fala' });
     }
   });
@@ -1514,7 +1546,9 @@ async function bootstrap() {
       reply.header('Content-Type', 'audio/mpeg');
       return reply.send(audioBuffer);
     } catch (error) {
-      console.error('Error previewing voice:', error);
+      if (env.NODE_ENV === 'development') {
+        console.error('Error previewing voice:', error);
+      }
       return reply.status(500).send({ error: 'Erro ao fazer preview da voz' });
     }
   });
@@ -1613,13 +1647,17 @@ async function bootstrap() {
   startScheduler();
   startJobWorker(); // Iniciar worker de fila de jobs
 
-  console.log(`\n  AutoShorts API   http://localhost:${env.PORT}`);
-  console.log(`  FFmpeg           ${ffmpegOk ? 'OK' : 'INDISPONÍVEL — rode npm install no backend'}`);
-  console.log(`  Transcrição      ${transcriptionService.providerName}`);
-  console.log(`  Storage          ${storageService.root}\n`);
+  if (env.NODE_ENV === 'development') {
+    console.log(`\n  AutoShorts API   http://localhost:${env.PORT}`);
+    console.log(`  FFmpeg           ${ffmpegOk ? 'OK' : 'INDISPONÍVEL — rode npm install no backend'}`);
+    console.log(`  Transcrição      ${transcriptionService.providerName}`);
+    console.log(`  Storage          ${storageService.root}\n`);
+  }
 }
 
 bootstrap().catch((err) => {
-  console.error('Falha ao iniciar o servidor:', err);
+  if (env.NODE_ENV === 'development') {
+    console.error('Falha ao iniciar o servidor:', err);
+  }
   process.exit(1);
 });

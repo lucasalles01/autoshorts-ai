@@ -385,11 +385,15 @@ export async function processVideoPipeline(jobData: {
       }
     });
 
-    console.log(
-      `[VideoWorker] Job ${jobId} concluído: ${createdClips.length} cortes reais renderizados em 1080x1920.`
-    );
+    if (env.NODE_ENV === 'development') {
+      console.log(
+        `[VideoWorker] Job ${jobId} concluído: ${createdClips.length} cortes reais renderizados em 1080x1920.`
+      );
+    }
   } catch (err: any) {
-    console.error(`[VideoWorker] Erro no Job ${jobId}:`, err);
+    if (env.NODE_ENV === 'development') {
+      console.error(`[VideoWorker] Erro no Job ${jobId}:`, err);
+    }
     await prisma.job
       .update({
         where: { id: jobId },

@@ -1,5 +1,6 @@
 import { prisma } from './database/client.js';
 import { socialPublisherService } from './services/social-publisher.js';
+import { env } from './config/env.js';
 
 // Local enum
 enum ScheduledPostStatus {
@@ -45,12 +46,16 @@ async function tick() {
       }
 
       const result = await socialPublisherService.publishScheduledPost(post.id);
-      console.log(
-        `[Scheduler] Post ${post.id}: ${result.success ? 'publicado' : `falhou — ${result.error}`}`
-      );
+      if (env.NODE_ENV === 'development') {
+        console.log(
+          `[Scheduler] Post ${post.id}: ${result.success ? 'publicado' : `falhou — ${result.error}`}`
+        );
+      }
     }
   } catch (err: any) {
-    console.error('[Scheduler] Erro no ciclo de publicação:', err.message);
+    if (env.NODE_ENV === 'development') {
+      console.error('[Scheduler] Erro no ciclo de publicação:', err.message);
+    }
   } finally {
     running = false;
   }
@@ -60,7 +65,9 @@ export function startScheduler() {
   if (timer) return;
   timer = setInterval(() => void tick(), TICK_MS);
   void tick();
-  console.log(`  Agendador        ativo (verifica a cada ${TICK_MS / 1000}s)`);
+  if (env.NODE_ENV === 'development') {
+    console.log(`  Agendador        ativo (verifica a cada ${TICK_MS / 1000}s)`);
+  }
 }
 
 export function stopScheduler() {

@@ -192,7 +192,9 @@ async function processPaymentEvent(event: PaymentWebhookEvent): Promise<void> {
       await handleFailedPayment(event.data);
       break;
     default:
-      console.log(`Unhandled event type: ${event.event}`);
+      if (env.NODE_ENV === 'development') {
+        console.log(`Unhandled event type: ${event.event}`);
+      }
   }
 }
 
