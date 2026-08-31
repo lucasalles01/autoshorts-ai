@@ -82,17 +82,17 @@ export class PaymentService {
     // Implementação placeholder - na prática chamaria Stripe API
     const paymentId = crypto.randomUUID();
     
-    // Criar registro de pagamento no banco
-    await prisma.payment.create({
-      data: {
-        userId,
-        planId,
-        amount: 0, // Será preenchido baseado no plano
-        status: 'PENDING',
-        paymentId,
-        provider: 'STRIPE'
-      }
-    });
+    // Payment model not in schema yet - placeholder
+    // await prisma.payment.create({
+    //   data: {
+    //     userId,
+    //     planId,
+    //     amount: 0,
+    //     status: 'PENDING',
+    //     paymentId,
+    //     provider: 'STRIPE'
+    //   }
+    // });
 
     return {
       clientSecret: 'pi_' + crypto.randomBytes(32).toString('hex'),
@@ -102,11 +102,10 @@ export class PaymentService {
 
   async getUserCredits(userId: string): Promise<number> {
     const user = await prisma.user.findUnique({
-      where: { id: userId },
-      include: { credits: true }
+      where: { id: userId }
     });
 
-    return user?.credits?.amount || 0;
+    return user?.credits || 0;
   }
 
   async deductCredits(userId: string, amount: number): Promise<void> {
@@ -120,11 +119,7 @@ export class PaymentService {
       where: { id: userId },
       data: {
         credits: {
-          update: {
-            amount: {
-              decrement: amount
-            }
-          }
+          decrement: amount
         }
       }
     });
@@ -135,10 +130,7 @@ export class PaymentService {
       where: { id: userId },
       data: {
         credits: {
-          upsert: {
-            create: { amount },
-            update: { amount: { increment: amount } }
-          }
+          increment: amount
         }
       }
     });
@@ -207,11 +199,11 @@ async function processPaymentEvent(event: PaymentWebhookEvent): Promise<void> {
 async function handleSuccessfulPayment(data: any): Promise<void> {
   const { userId, planId, amount } = data;
   
-  // Atualizar status do pagamento
-  await prisma.payment.updateMany({
-    where: { paymentId: data.paymentId },
-    data: { status: 'COMPLETED' }
-  });
+  // Payment model not in schema yet - placeholder
+  // await prisma.payment.updateMany({
+  //   where: { paymentId: data.paymentId },
+  //   data: { status: 'COMPLETED' }
+  // });
 
   // Adicionar créditos ao usuário
   const paymentService = new PaymentService();
@@ -224,10 +216,11 @@ async function handleSuccessfulPayment(data: any): Promise<void> {
 }
 
 async function handleFailedPayment(data: any): Promise<void> {
-  await prisma.payment.updateMany({
-    where: { paymentId: data.paymentId },
-    data: { status: 'FAILED' }
-  });
+  // Payment model not in schema yet - placeholder
+  // await prisma.payment.updateMany({
+  //   where: { paymentId: data.paymentId },
+  //   data: { status: 'FAILED' }
+  // });
 }
 
 export const paymentService = new PaymentService();

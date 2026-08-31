@@ -48,7 +48,7 @@ Responda em formato JSON com campos: title, description, hashtags (array)`
         throw new Error('OpenAI API error');
       }
 
-      const data = await response.json();
+      const data = await response.json() as { choices: Array<{ message: { content: string } }> };
       const content = data.choices[0].message.content;
       
       // Parse JSON response

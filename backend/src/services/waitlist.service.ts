@@ -5,7 +5,7 @@ export interface WaitlistEntry {
   email: string;
   name?: string;
   source: string;
-  status: 'PENDING' | 'CONFIRMED' | 'CONVERTED';
+  status: string;
   createdAt: Date;
 }
 

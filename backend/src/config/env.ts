@@ -38,7 +38,14 @@ const envSchema = z.object({
   TIKTOK_CLIENT_KEY: z.string().optional(),
   TIKTOK_CLIENT_SECRET: z.string().optional(),
   INSTAGRAM_APP_ID: z.string().optional(),
-  INSTAGRAM_APP_SECRET: z.string().optional()
+  INSTAGRAM_APP_SECRET: z.string().optional(),
+  // Email & TTS
+  RESEND_API_KEY: z.string().optional(),
+  RESEND_FROM_EMAIL: z.string().optional(),
+  ELEVENLABS_API_KEY: z.string().optional(),
+  // Payment
+  STRIPE_WEBHOOK_SECRET: z.string().optional(),
+  MERCADO_PAGO_WEBHOOK_SECRET: z.string().optional()
 });
 
 export const env = envSchema.parse(process.env);

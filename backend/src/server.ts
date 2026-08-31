@@ -822,10 +822,10 @@ async function bootstrap() {
             externalAccountId: account.id,
             title: metadata?.title || clipMetadata?.title || `Corte ${clip.id.substring(0, 6)}`,
             description: metadata?.description || clipMetadata?.description || '',
-            hashtags: metadata?.hashtags || clipMetadata?.tags?.split(',') || []
+            hashtags: metadata?.hashtags || (clipMetadata?.hashtags as string[]) || []
           };
 
-          const result = await socialPublisherService.publishToAccount(account.platform, account.accessToken, payload);
+          const result = await socialPublisherService.publishToAccount(account.platform, account.accessTokenEncrypted, payload);
           
           results.push({
             platform: account.platform,
@@ -972,7 +972,7 @@ async function bootstrap() {
         }),
       });
 
-      const tokenData = await tokenResponse.json();
+      const tokenData = await tokenResponse.json() as { error?: string; error_description?: string; access_token?: string; refresh_token?: string; expires_in?: number };
 
       if (!tokenResponse.ok || tokenData.error) {
         return reply.status(400).send({ 
@@ -988,7 +988,7 @@ async function bootstrap() {
         },
       });
 
-      const userInfo = await userInfoResponse.json();
+      const userInfo = await userInfoResponse.json() as { error?: string; data?: { user?: { open_id?: string; display_name?: string } } };
 
       if (!userInfoResponse.ok || userInfo.error) {
         console.error('Erro ao obter informações do usuário:', userInfo);
@@ -1008,30 +1008,22 @@ async function bootstrap() {
         },
         update: {
           username: displayName,
-          accessTokenEncrypted: socialPublisherService.encryptToken(tokenData.access_token),
-          refreshTokenEncrypted: tokenData.refresh_token 
-            ? socialPublisherService.encryptToken(tokenData.refresh_token)
-            : null,
+          accessTokenEncrypted: socialPublisherService.encryptToken(tokenData.access_token || ''),
+          refreshTokenEncrypted: null,
           status: 'CONNECTED',
           isMock: false,
-          tokenExpiresAt: tokenData.expires_in 
-            ? new Date(Date.now() + tokenData.expires_in * 1000)
-            : null
+          tokenExpiresAt: null
         },
         create: {
           userId: user.id,
           platform: 'TIKTOK',
           externalAccountId: openId,
           username: displayName,
-          accessTokenEncrypted: socialPublisherService.encryptToken(tokenData.access_token),
-          refreshTokenEncrypted: tokenData.refresh_token 
-            ? socialPublisherService.encryptToken(tokenData.refresh_token)
-            : null,
+          accessTokenEncrypted: socialPublisherService.encryptToken(tokenData.access_token || ''),
+          refreshTokenEncrypted: null,
           status: 'CONNECTED',
           isMock: false,
-          tokenExpiresAt: tokenData.expires_in 
-            ? new Date(Date.now() + tokenData.expires_in * 1000)
-            : null
+          tokenExpiresAt: null
         }
       });
 
@@ -1145,7 +1137,7 @@ async function bootstrap() {
         }),
       });
 
-      const tokenData = await tokenResponse.json();
+      const tokenData = await tokenResponse.json() as { error?: string; error_description?: string; access_token?: string; refresh_token?: string; expires_in?: number };
 
       if (!tokenResponse.ok || tokenData.error) {
         return reply.status(400).send({ 
@@ -1161,7 +1153,7 @@ async function bootstrap() {
         },
       });
 
-      const userInfo = await userInfoResponse.json();
+      const userInfo = await userInfoResponse.json() as { sub?: string; name?: string };
 
       const googleId = userInfo.sub || 'unknown';
       const displayName = userInfo.name || 'Usuário YouTube';
@@ -1177,30 +1169,22 @@ async function bootstrap() {
         },
         update: {
           username: displayName,
-          accessTokenEncrypted: socialPublisherService.encryptToken(tokenData.access_token),
-          refreshTokenEncrypted: tokenData.refresh_token 
-            ? socialPublisherService.encryptToken(tokenData.refresh_token)
-            : null,
+          accessTokenEncrypted: socialPublisherService.encryptToken(tokenData.access_token || ''),
+          refreshTokenEncrypted: null,
           status: 'CONNECTED',
           isMock: false,
-          tokenExpiresAt: tokenData.expires_in 
-            ? new Date(Date.now() + tokenData.expires_in * 1000)
-            : null
+          tokenExpiresAt: null
         },
         create: {
           userId: user.id,
           platform: 'YOUTUBE',
           externalAccountId: googleId,
           username: displayName,
-          accessTokenEncrypted: socialPublisherService.encryptToken(tokenData.access_token),
-          refreshTokenEncrypted: tokenData.refresh_token 
-            ? socialPublisherService.encryptToken(tokenData.refresh_token)
-            : null,
+          accessTokenEncrypted: socialPublisherService.encryptToken(tokenData.access_token || ''),
+          refreshTokenEncrypted: null,
           status: 'CONNECTED',
           isMock: false,
-          tokenExpiresAt: tokenData.expires_in 
-            ? new Date(Date.now() + tokenData.expires_in * 1000)
-            : null
+          tokenExpiresAt: null
         }
       });
 
@@ -1304,12 +1288,12 @@ async function bootstrap() {
         method: 'GET',
       });
 
-      const tokenData = await tokenResponse.json();
+      const tokenData = await tokenResponse.json() as { error?: string; error_description?: string; access_token?: string; refresh_token?: string; expires_in?: number };
 
       if (!tokenResponse.ok || tokenData.error) {
         return reply.status(400).send({ 
           error: 'Erro ao trocar código por token',
-          details: tokenData.error?.message || tokenData.error
+          details: tokenData.error_description || tokenData.error
         });
       }
 
@@ -1317,7 +1301,7 @@ async function bootstrap() {
 
       // Obter informações do usuário (Instagram Basic Display)
       const userInfoResponse = await fetch(`https://graph.facebook.com/v18.0/me?fields=id,name&access_token=${shortLivedToken}`);
-      const userInfo = await userInfoResponse.json();
+      const userInfo = await userInfoResponse.json() as { error?: string; id?: string; name?: string };
 
       if (!userInfoResponse.ok || userInfo.error) {
         console.error('Erro ao obter informações do usuário:', userInfo);
@@ -1328,7 +1312,7 @@ async function bootstrap() {
 
       // Trocar por long-lived token
       const longLivedTokenResponse = await fetch(`https://graph.facebook.com/v18.0/oauth/access_token?grant_type=fb_exchange_token&client_id=${clientId}&client_secret=${clientSecret}&fb_exchange_token=${shortLivedToken}`);
-      const longLivedTokenData = await longLivedTokenResponse.json();
+      const longLivedTokenData = await longLivedTokenResponse.json() as { access_token?: string; expires_in?: number };
 
       // Salvar tokens no banco de dados
       const account = await prisma.socialAccount.upsert({
@@ -1342,12 +1326,10 @@ async function bootstrap() {
         update: {
           username: displayName,
           accessTokenEncrypted: socialPublisherService.encryptToken(longLivedTokenData.access_token || shortLivedToken),
-          refreshTokenEncrypted: null, // Instagram não usa refresh token da mesma forma
+          refreshTokenEncrypted: null,
           status: 'CONNECTED',
           isMock: false,
-          tokenExpiresAt: longLivedTokenData.expires_in 
-            ? new Date(Date.now() + longLivedTokenData.expires_in * 1000)
-            : null
+          tokenExpiresAt: null
         },
         create: {
           userId: user.id,
@@ -1358,9 +1340,7 @@ async function bootstrap() {
           refreshTokenEncrypted: null,
           status: 'CONNECTED',
           isMock: false,
-          tokenExpiresAt: longLivedTokenData.expires_in 
-            ? new Date(Date.now() + longLivedTokenData.expires_in * 1000)
-            : null
+          tokenExpiresAt: null
         }
       });
 

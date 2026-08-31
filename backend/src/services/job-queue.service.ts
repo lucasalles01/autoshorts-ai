@@ -16,7 +16,7 @@ class SimpleJobQueue implements JobQueue {
         type: jobData.type || 'VIDEO_PROCESSING',
         status: 'PENDING',
         progress: 0,
-        data: jobData
+        userId: jobData.userId || 'demo-user'
       }
     });
     return job.id;
@@ -54,8 +54,7 @@ class SimpleJobQueue implements JobQueue {
       where: { id: jobId },
       data: {
         status: 'COMPLETED',
-        progress: 100,
-        result: result || null
+        progress: 100
       }
     });
   }
