@@ -176,6 +176,7 @@ async function bootstrap() {
     'https://localhost:3000',
     env.PUBLIC_BASE_URL || 'http://localhost:3000',
     'https://autoshorts-ai.vercel.app', // Vercel frontend
+    'https://autoshorts-frontend-green.vercel.app', // Specific Vercel frontend
     'https://*.vercel.app' // Allow any Vercel domain for flexibility
   ].filter(Boolean);
 

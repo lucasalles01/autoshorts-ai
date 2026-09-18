@@ -14,21 +14,39 @@ const getBackendApiUrl = () => {
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const url = `${getBackendApiUrl()}${path}`;
-  const response = await fetch(url, {
-    headers: {
-      ...(options?.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
-      'ngrok-skip-browser-warning': 'true', // Skip ngrok warning page
-      ...options?.headers
-    },
-    ...options
-  });
+  
+  // Create timeout controller
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: response.statusText }));
-    throw new Error(error.error || `Erro ${response.status}`);
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+      headers: {
+        ...(options?.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
+        'ngrok-skip-browser-warning': 'true', // Skip ngrok warning page
+        ...options?.headers
+      },
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: response.statusText }));
+      throw new Error(error.error || `Erro ${response.status}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    clearTimeout(timeoutId);
+    
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error('Timeout: O servidor não respondeu dentro do tempo limite');
+    }
+    
+    throw error;
   }
-
-  return response.json();
 }
 
 export interface ApiProject {
