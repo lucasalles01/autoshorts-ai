@@ -241,8 +241,16 @@ export const api = {
     request('/tts/preview', {
       method: 'POST',
       body: JSON.stringify({ voiceId, sampleText })
+    }),
+
+  addToWaitlist: (email: string, source?: string) =>
+    request('/waitlist', {
+      method: 'POST',
+      body: JSON.stringify({ email, source })
     })
 };
+
+export const apiClient = api;
 
 export function mapClipToStore(clip: ApiClip) {
   const metadata = clip.metadatas?.[0];

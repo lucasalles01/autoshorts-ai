@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import { AutoShortsLogo } from '../components/AutoShortsLogo';
 import { WaitlistSection } from '../components/WaitlistSection';
 import { ExitIntentPopup } from '../components/ExitIntentPopup';
-import { apiClient } from '../api/client';
+import { api } from '../api/client';
 
 export const LandingPage: React.FC = () => {
   const [showExitPopup, setShowExitPopup] = useState(false);
 
   const handleJoinWaitlist = async (email: string) => {
     try {
-      await apiClient.addToWaitlist(email, 'Exit Intent Popup');
+      await api.addToWaitlist(email, 'Exit Intent Popup');
       // Success feedback could be added here
     } catch (error) {
       console.error('Error joining waitlist:', error);
